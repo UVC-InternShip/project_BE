@@ -21,6 +21,7 @@ export default [
         'error',
         {
           singleQuote: true, // Prettier에서도 싱글 쿼트를 사용하도록 설정
+          endOfLine: 'auto',
         },
       ],
       'linebreak-style': 0, // 라인 브레이크 스타일을 강제하지 않음
