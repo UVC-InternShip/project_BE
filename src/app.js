@@ -31,7 +31,7 @@ db.sequelize
     logger.error('DB Connect Fail!', err);
   });
 
-app.use('/', indexRouter);
+app.use('/api', indexRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
