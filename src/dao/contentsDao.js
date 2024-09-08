@@ -1,6 +1,5 @@
-// sequelize와 User 모델 불러오기
-const { Op } = require('sequelize');
-const { Contents } = require('../models/contents');
+import Op from 'sequelize';
+import Contents from '../models/contents.js';
 
 // ContentsDao 객체를 정의, 이 객체는 데이터베이스에 대한 CRUD 연산을 수행한다.
 const ContentsDao = {
@@ -220,4 +219,4 @@ const ContentsDao = {
   },
 };
 
-module.exports = ContentsDao;
+export default ContentsDao;

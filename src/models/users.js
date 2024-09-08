@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 
-class Content extends Sequelize.Model {
+class User extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
@@ -60,4 +60,4 @@ class Content extends Sequelize.Model {
   }
 }
 
-export default Content;
+export default User;

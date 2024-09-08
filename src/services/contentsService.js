@@ -1,4 +1,4 @@
-const contentsDao = require('../dao/contentsrDao');
+import contentsDao from '../dao/contentsDao.js';
 
 const contentsService = {
   //상품 등록
@@ -149,4 +149,4 @@ const contentsService = {
   },
 };
 
-module.exports = contentsService;
+export default contentsService;

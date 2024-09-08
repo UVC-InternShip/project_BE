@@ -1,7 +1,7 @@
 import express from 'express';
+import contentsService from '../services/contentsService.js';
 
 const router = express.Router();
-const contentsService = require('../services/contentsService');
 
 //상품 등록
 router.post('/register', async (req, res, next) => {

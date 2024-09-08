@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 
-class CnotentsImg extends Sequelize.Model {
+class ContentsImg extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
@@ -15,7 +15,7 @@ class CnotentsImg extends Sequelize.Model {
           allowNull: false,
           unique: true,
           references: {
-            model: 'Users', // 참조할 모델 이름
+            model: 'User', // 참조할 모델 이름
             key: 'contents_id', // Users 모델의 기본 키
           },
           onDelete: 'CASCADE', // 사용자가 삭제되면 이 레코드도 삭제
@@ -44,4 +44,4 @@ class CnotentsImg extends Sequelize.Model {
   }
 }
 
-export default CnotentsImg;
+export default ContentsImg;

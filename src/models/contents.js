@@ -9,7 +9,7 @@ class Contents extends Sequelize.Model {
           allowNull: false,
           unique: true,
           references: {
-            model: 'Users', // 참조할 모델 이름
+            model: 'User', // 참조할 모델 이름
             key: 'user_id', // Users 모델의 기본 키
           },
           onDelete: 'CASCADE', // 사용자가 삭제되면 이 레코드도 삭제
@@ -52,12 +52,12 @@ class Contents extends Sequelize.Model {
             'delivery_sharing'
           ),
           allowNull: false,
-          defaultValue: 0,
+          defaultValue: 'exchange',
         },
         status: {
-          type: Sequelize.ENUM('wating', 'promise', 'complete'),
+          type: Sequelize.ENUM('waiting', 'promise', 'complete'),
           allowNull: false,
-          defaultValue: 'user',
+          defaultValue: 'waiting',
         },
       },
       {
