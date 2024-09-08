@@ -4,6 +4,11 @@ class User extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
+        userId: {
+          type: Sequelize.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
+        },
         phoneNumber: {
           type: Sequelize.STRING(30),
           allowNull: false,
