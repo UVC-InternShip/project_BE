@@ -1,7 +1,11 @@
 import express from 'express';
+<<<<<<< Updated upstream
 import contentRouter from './contents';
 import userRouter from './user.js';
 import reputationRouter from './reputation.js';
+=======
+import contentRouter from './contents.js';
+>>>>>>> Stashed changes
 
 const router = express.Router();
 

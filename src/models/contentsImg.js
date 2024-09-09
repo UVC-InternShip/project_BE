@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
+//import Contents from './contents.js'; // 상품 모델
 
-class CnotentsImg extends Sequelize.Model {
+class ContentsImg extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
@@ -13,11 +14,10 @@ class CnotentsImg extends Sequelize.Model {
         contents_id: {
           type: Sequelize.INTEGER,
           allowNull: false,
-          unique: true,
-          references: {
-            model: 'Users', // 참조할 모델 이름
-            key: 'contents_id', // Users 모델의 기본 키
-          },
+          // references: {
+          //   model: Contents, // Contents 모델을 참조
+          //   key: 'contents_id',
+          // },
           onDelete: 'CASCADE', // 사용자가 삭제되면 이 레코드도 삭제
           onUpdate: 'CASCADE',
         },
@@ -28,10 +28,7 @@ class CnotentsImg extends Sequelize.Model {
         order: {
           type: Sequelize.INTEGER,
           allowNull: true,
-          unique: true,
-          validate: {
-            isEmail: true,
-          },
+          unique: false, // 하나의 상품에 여러 이미지가 있을 수 있음
         },
       },
       {
@@ -44,4 +41,8 @@ class CnotentsImg extends Sequelize.Model {
   }
 }
 
-export default CnotentsImg;
+// 상품과 이미지 관계 설정 (1:N)
+//Contents.hasMany(ContentsImg, { foreignKey: 'contents_id' });
+//ContentsImg.belongsTo(Contents, { foreignKey: 'contents_id' });
+
+export default ContentsImg;

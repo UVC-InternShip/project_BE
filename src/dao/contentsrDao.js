@@ -1,223 +1,233 @@
 // sequelize와 User 모델 불러오기
-const { Op } = require('sequelize');
-const { Contents } = require('../models/contents');
+import { Op } from 'sequelize';
+import Contents from '../models/contents.js';
+import Category from '../models/category.js';
+import ContentsImg from '../models/contentsImg.js';
 
-// ContentsDao 객체를 정의, 이 객체는 데이터베이스에 대한 CRUD 연산을 수행한다.
 const ContentsDao = {
   // 상품 등록
-  insert(params) {
-    console.log('🚀 ~ insert ~ params:', params);
-    // Promise 객체를 반환합니다. 비동기 처리를 위해 사용됩니다.
-    return new Promise((resolve, reject) => {
-      // contents 모델을 사용하여 새 사용자를 생성합니다. params는 새 사용자 정보를 담고 있습니다.
-      Contents.create(params)
-        .then((inserted) => {
-          console.log('🚀 ~ User.create ~ inserted:', inserted);
-          // console.log(JSON.parse(JSON.stringify(inserted))); // 불필요한 정보를 제외해서 보여준다.
-          // 삽입된 사용자 정보에서 비밀번호를 제외하고 나머지 정보만을 추출합니다.
-          //const { password, ...newInserted } = JSON.parse(JSON.stringify(inserted));
-          // 처리가 성공했을 때, 비밀번호를 제외한 사용자 정보를 반환합니다.
-          resolve(inserted);
-        })
-        .catch((err) => {
-          // 처리 중 에러가 발생하면 에러를 반환합니다.
-          reject(err);
-        });
-    });
+  async insert(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const inserted = await Contents.create(params);
+      //console.log('🚀 ~ ContentsDao.create ~ inserted:', inserted);
+      return inserted;
+    } catch (err) {
+      throw err;
+    }
   },
 
-  //상품 수정
-  update() {
-    console.log('🚀 ~ insert ~ params:');
-    return new Promise((resolve, reject) => {
-      Contents.findAll()
-        .then((inserted) => {
-          console.log('🚀 ~ User.allUsers ~ inserted:', inserted);
-          resolve(inserted);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+  // 이미지 경로 등록
+  async insertContentImages(imagePaths) {
+    console.log('🚀 ~ insertContentImages ~ imagePaths:', imagePaths);
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const newImages = await ContentsImg.bulkCreate(imagePaths);
+      return newImages;
+    } catch (error) {
+      throw error;
+    }
   },
 
-  //상품 판매 상태 변경
-  updateStatus(params) {
-    // 검색 조건을 설정합니다.
-    const setQuery = {};
-    if (params.ids) {
-      // ids 배열을 통해 여러 사용자를 조회할 수 있습니다. 예) [1,2,3,4]
-      setQuery.where = {
-        ...setQuery.where,
-        id: params.ids,
-      };
-    }
-    if (params.name) {
-      // 이름을 기준으로 유사 검색을 수행합니다.
-      setQuery.where = {
-        ...setQuery.where,
-        name: { [Op.like]: `%${params.name}%` },
-      };
-    }
-    if (params.userID) {
-      // userID를 기준으로 유사 검색을 수행합니다.
-      setQuery.where = {
-        ...setQuery.where,
-        userID: { [Op.like]: `%${params.userID}%` },
-      };
-    }
-    if (params.email) {
-      // 이메일을 기준으로 정확한 검색을 수행합니다.
-      setQuery.where = {
-        ...setQuery.where,
-        email: params.email,
-      };
-    }
-    if (params.phone) {
-      // 전화번호를 기준으로 정확한 검색을 수행합니다.
-      setQuery.where = {
-        ...setQuery.where,
-        phone: params.phone,
-      };
-    }
-    if (params.addrLat) {
-      // 주소의 위도를 기준으로 정확한 검색을 수행합니다.
-      setQuery.where = {
-        ...setQuery.where,
-        addrLat: params.addrLat,
-      };
-    }
-    if (params.addrLng) {
-      // 주소의 경도를 기준으로 정확한 검색을 수행합니다.
-      setQuery.where = {
-        ...setQuery.where,
-        addrLng: params.addrLng,
-      };
-    }
+  // 상품 수정
+  async update(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const updated = await Contents.update(params, {
+        where: { contents_id: params.id },
+      });
 
-    // 결과를 id 내림차순으로 정렬합니다.
-    setQuery.order = [['id', 'DESC']];
-    // limit와 offset을 설정하여 페이징 처리를 구현할 수 있습니다.
-    if (params.limit) {
-      setQuery.limit = params.limit;
-    }
-    if (params.offset) {
-      setQuery.offset = params.offset;
-    }
+      if (updated === 0) {
+        throw new Error('상품 수정에 실패했습니다.');
+      }
 
-    // Promise 객체를 반환합니다. 비동기 처리를 위해 사용됩니다.
-    return new Promise((resolve, reject) => {
-      // User 모델을 사용하여 조건에 맞는 사용자 목록과 총 개수를 조회합니다.
-      // 비밀번호를 제외한 모든 속성과 관련 Department 정보를 포함합니다.
-      Contents.findAndCountAll({
-        ...setQuery,
-        attributes: { exclude: ['password'] }, // 비밀번호는 제외
-      })
-        .then((selectedList) => {
-          // 조회 성공 시, 사용자 목록을 반환합니다.
-          resolve(selectedList);
-        })
-        .catch((err) => {
-          // 처리 중 에러가 발생하면 에러를 반환합니다.
-          reject(err);
-        });
-    });
+      const updatedContent = await Contents.findOne({
+        where: { contents_id: params.id },
+      });
+      console.log('🚀 ~ update ~ updatedContent:', updatedContent);
+      return updatedContent;
+      //return updated;
+    } catch (err) {
+      throw err;
+    }
   },
 
-  //상품 삭제
-  delete(params) {
-    return new Promise((resolve, reject) => {
-      Contents.findOne({
-        //attributes: ['id', 'user_i_d', 'password', 'name'],
-        where: [{ user_i_d: params.userID, password: params.password }],
-      })
-        .then((selectedInfo) => {
-          resolve(selectedInfo);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+  // 상품 판매 상태 변경
+  async updateStatus(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const updated = await Contents.update(params, {
+        where: { contents_id: params.id },
+      });
+
+      if (updated === 0) {
+        throw new Error('상품 수정에 실패했습니다.');
+      }
+
+      const updatedContent = await Contents.findOne({
+        where: { contents_id: params.id },
+      });
+      console.log('🚀 ~ update ~ updatedContent:', updatedContent);
+      return updatedContent;
+      //return updated;
+    } catch (err) {
+      throw err;
+    }
   },
 
-  //상품 리스트 가져오기
-  listGet(params) {
-    return new Promise((resolve, reject) => {
-      Contents.findOne({
-        //attributes: ['id', 'user_i_d', 'password', 'name'],
-        where: [{ email: params.email }],
-      })
-        .then((selectedInfo) => {
-          resolve(selectedInfo);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+  // 상품 삭제
+  async delete(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const deleted = await Contents.destroy({
+        where: { contents_id: params },
+      });
+      return deleted;
+    } catch (err) {
+      throw err;
+    }
   },
 
-  //유저별 상품 리스트 가져오기
-  listUserGet(params) {
-    return new Promise((resolve, reject) => {
-      Contents.findOne({
-        //attributes: ['id', 'user_i_d', 'password', 'name'],
-        where: [{ user_i_d: params.userID }],
-      })
-        .then((selectedInfo) => {
-          resolve(selectedInfo);
-        })
-        .catch((err) => {
-          reject(err);
+  // 상품 리스트 가져오기
+  async listGet() {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const listInfo = await Contents.findAll();
+
+      // 2. 모든 상품의 이미지 조회
+      const contentsIds = listInfo.map((content) => content.contents_id);
+      const images = await ContentsImg.findAll({
+        where: { contents_id: contentsIds }, // 해당하는 상품들의 이미지 조회
+        attributes: ['contents_id', 'image_url', 'order'], // 필요한 필드만 선택
+      });
+
+      // 3. 이미지 데이터를 contents_id를 기준으로 매핑
+      const imagesByContentId = images.reduce((acc, image) => {
+        if (!acc[image.contents_id]) {
+          acc[image.contents_id] = [];
+        }
+        acc[image.contents_id].push({
+          image_url: image.image_url,
+          order: image.order,
         });
-    });
+        return acc;
+      }, {});
+
+      // 4. 상품 리스트에 이미지 데이터를 추가
+      const contentsWithImages = listInfo.map((content) => {
+        return {
+          ...content.toJSON(),
+          images: imagesByContentId[content.contents_id] || [], // 해당 상품에 이미지가 있으면 추가, 없으면 빈 배열
+        };
+      });
+
+      return contentsWithImages;
+    } catch (err) {
+      throw err;
+    }
   },
 
-  //상품검색
-  search(params) {
-    return new Promise((resolve, reject) => {
-      Contents.findOne({
-        //attributes: ['id', 'user_i_d', 'password', 'name'],
-        where: [{ email: params.email }],
-      })
-        .then((selectedInfo) => {
-          resolve(selectedInfo);
-        })
-        .catch((err) => {
-          reject(err);
+  // 유저별 상품 리스트 가져오기
+  async listUserGet(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const selectedInfo = await Contents.findAll({
+        where: { user_id: params.id },
+      });
+
+      // 2. 모든 상품의 이미지 조회
+      const contentsIds = selectedInfo.map((content) => content.contents_id);
+      const images = await ContentsImg.findAll({
+        where: { contents_id: contentsIds }, // 해당하는 상품들의 이미지 조회
+        attributes: ['contents_id', 'image_url', 'order'], // 필요한 필드만 선택
+      });
+
+      // 3. 이미지 데이터를 contents_id를 기준으로 매핑
+      const imagesByContentId = images.reduce((acc, image) => {
+        if (!acc[image.contents_id]) {
+          acc[image.contents_id] = [];
+        }
+        acc[image.contents_id].push({
+          image_url: image.image_url,
+          order: image.order,
         });
-    });
+        return acc;
+      }, {});
+
+      // 4. 상품 리스트에 이미지 데이터를 추가
+      const contentsWithImages = selectedInfo.map((content) => {
+        return {
+          ...content.toJSON(),
+          images: imagesByContentId[content.contents_id] || [], // 해당 상품에 이미지가 있으면 추가, 없으면 빈 배열
+        };
+      });
+
+      return contentsWithImages;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // 상품 검색
+  async search(searchParams, type) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const setQuery = {};
+      if (searchParams.title) {
+        // 이름을 기준으로 유사 검색을 수행합니다.
+        setQuery.where = {
+          ...setQuery.where,
+          title: { [Op.like]: `%${searchParams.title}%` },
+        };
+      }
+      console.log('🚀 ~ search ~ whereClause:', setQuery);
+      // 상품 검색
+      const results = await Contents.findAll({
+        where: setQuery,
+        order: [['id', 'DESC']], // 최신 상품 순으로 정렬
+      });
+      return results;
+    } catch (err) {
+      throw err;
+    }
   },
 
   // 카테고리 가져오기
-  categoryGet(params) {
-    return new Promise((resolve, reject) => {
-      Contents.update(params, {
-        where: { id: params.id },
-      })
-        .then(([updated]) => {
-          resolve({ updatedCount: updated });
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+  async categoryGet() {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const categoryList = await Category.findAll();
+      return categoryList;
+    } catch (err) {
+      throw err;
+    }
   },
 
-  //완전 삭제
-  deleteForce(params) {
-    return new Promise((resolve, reject) => {
-      Contents.destroy({
+  // 카테고리 추가하기
+  async categoryPost(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const inserted = await Category.create(params);
+      console.log('🚀 ~ ContentsDao.create ~ inserted:', inserted);
+      return inserted;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // 완전 삭제
+  async deleteForce(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const deleted = await Contents.destroy({
         where: { id: params.id },
         force: true,
-      })
-        .then((deleted) => {
-          resolve({ deletedCount: deleted });
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+      });
+      return { deletedCount: deleted };
+    } catch (err) {
+      throw err;
+    }
   },
 };
 
-module.exports = ContentsDao;
+export default ContentsDao;

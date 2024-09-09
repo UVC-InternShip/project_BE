@@ -1,13 +1,25 @@
-const contentsDao = require('../dao/contentsrDao');
+import contentsDao from '../dao/contentsrDao.js';
 
 const contentsService = {
   //상품 등록
-  async register(params) {
-    console.log('🚀 ~ reg ~ params:', params);
+  async register(params, images) {
+    console.log('🚀 ~ register ~ images:', images.length);
     let inserted = null;
-
     try {
       inserted = await contentsDao.insert(params);
+
+      // 2. 이미지 파일 경로를 저장
+      if (images && images.length > 0) {
+        const imagePaths = images.map((file, index) => ({
+          contents_id: inserted.contents_id,
+          image_url: file.path, // 파일 경로
+          order: index + 1, // 이미지 순서
+        }));
+        console.log('🚀 ~ imagePaths ~ imagePaths:', imagePaths);
+
+        // 이미지 경로들을 등록
+        await contentsDao.insertContentImages(imagePaths);
+      }
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -20,12 +32,10 @@ const contentsService = {
   },
 
   //상품 수정
-  async edit() {
-    console.log('🚀 ~ usersGet ~ params:');
+  async edit(params) {
     let inserted = null;
-
     try {
-      inserted = await contentsDao.allUsers();
+      inserted = await contentsDao.update(params);
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -42,7 +52,7 @@ const contentsService = {
     let result = null;
 
     try {
-      result = await contentsDao.selectList(params);
+      result = await contentsDao.updateStatus(params);
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -59,7 +69,7 @@ const contentsService = {
     let result = null;
 
     try {
-      result = await contentsDao.selectInfo(params);
+      result = await contentsDao.delete(params);
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -72,11 +82,11 @@ const contentsService = {
   },
 
   //상품 리스트 가져오기
-  async listGet(params) {
+  async listGet() {
     let result = null;
 
     try {
-      result = await contentsDao.update(params);
+      result = await contentsDao.listGet();
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -93,7 +103,7 @@ const contentsService = {
     let result = null;
 
     try {
-      result = await contentsDao.delete(params);
+      result = await contentsDao.listUserGet(params);
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -106,11 +116,11 @@ const contentsService = {
   },
 
   //상품 검색
-  async search(params) {
+  async search(searchParams, type) {
     let result = null;
 
     try {
-      result = await contentsDao.deleteForce(params);
+      result = await contentsDao.search(searchParams, type);
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -123,23 +133,31 @@ const contentsService = {
   },
 
   //카테고리 가져오기
-  async categoryGet(params) {
-    let selectedUserInfo = null;
+  async categoryGet() {
+    let category = null;
     try {
       // 1. 사용자 조회 (로그인용)
-      selectedUserInfo = await contentsDao.loginUser(params);
+      category = await contentsDao.categoryGet();
 
-      // 1-1. 사용자 조회된게 있는지 확인후 없으면 에러처리 및 함수 종료
-      if (!selectedUserInfo) {
-        const err = new Error(
-          `userService.login, 일치하는 유저정보가 없습니다 (userID: ${JSON.stringify(params.userID)})`
-        );
-        return new Promise((resolve, reject) => {
-          reject(err);
-        });
-      }
       return new Promise((resolve) => {
-        resolve(selectedUserInfo);
+        resolve(category);
+      });
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+  },
+
+  //카테고리 추가
+  async categoryPost(params) {
+    let category = null;
+    try {
+      // 1. 사용자 조회 (로그인용)
+      category = await contentsDao.categoryPost(params);
+
+      return new Promise((resolve) => {
+        resolve(category);
       });
     } catch (err) {
       return new Promise((resolve, reject) => {
@@ -149,4 +167,4 @@ const contentsService = {
   },
 };
 
-module.exports = contentsService;
+export default contentsService;
