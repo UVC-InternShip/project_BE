@@ -1,4 +1,4 @@
-import contentsDao from '../dao/contentsrDao.js';
+import contentsDao from '../dao/contentsDao.js';
 
 const contentsService = {
   //상품 등록
