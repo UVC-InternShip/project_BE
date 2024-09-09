@@ -4,60 +4,35 @@ class Contents extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        user_id: {
+        contentsId: {
           type: Sequelize.INTEGER,
-          allowNull: false,
-          unique: true,
-          references: {
-            model: 'User', // 참조할 모델 이름
-            key: 'user_id', // Users 모델의 기본 키
-          },
-          onDelete: 'CASCADE', // 사용자가 삭제되면 이 레코드도 삭제
-          onUpdate: 'CASCADE',
-        },
-        category_id: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'Categories', // 참조할 모델 이름
-            key: 'category_id', // Categories 모델의 기본 키
-          },
-          onDelete: 'SET NULL', // 카테고리가 삭제되면 이 레코드의 category_id를 null로 설정
-          onUpdate: 'CASCADE',
+          primaryKey: true,
+          autoIncrement: true,
         },
         title: {
           type: Sequelize.STRING(255),
           allowNull: false,
         },
         description: {
-          type: Sequelize.STRING(255),
-          allowNull: true,
-          unique: true,
-          validate: {
-            isEmail: true,
-          },
+          type: Sequelize.TEXT,
         },
-        item_type: {
-          type: Sequelize.ENUM('item', 'service'),
+        content_type: {
+          type: Sequelize.ENUM('상품', '서비스'),
           allowNull: false,
-          validate: {
-            notEmpty: true,
-          },
         },
         purpose: {
-          type: Sequelize.ENUM(
-            'exchange',
-            'sharing',
-            'delivery_exchange',
-            'delivery_sharing'
-          ),
+          type: Sequelize.ENUM('교환', '나눔', '택배 교환', '택배 나눔'),
           allowNull: false,
-          defaultValue: 'exchange',
         },
         status: {
-          type: Sequelize.ENUM('waiting', 'promise', 'complete'),
+          type: Sequelize.ENUM(
+            '교환 대기중',
+            '나눔 대기중',
+            '교환중',
+            '나눔중',
+            '완료'
+          ),
           allowNull: false,
-          defaultValue: 'waiting',
         },
       },
       {
@@ -67,6 +42,34 @@ class Contents extends Sequelize.Model {
         paranoid: true,
       }
     );
+  }
+
+  static associate(models) {
+    this.hasMany(models.Transactions, {
+      foreignKey: 'contentsId',
+      as: 'transaction',
+    });
+    this.belongsTo(models.Category, {
+      foreignKey: 'categoryId',
+      as: 'category',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'userId',
+      as: 'user',
+    });
+    this.hasMany(models.ContentsImg, {
+      foreignKey: 'contentsId',
+      as: 'contentImg',
+    });
+    this.hasMany(models.ExchangeProposal, {
+      foreignKey: 'proposeContentId',
+      sourceKey: 'contentsId',
+      as: 'proposeContent',
+    });
+    this.hasMany(models.ExchangeProposal, {
+      foreignKey: 'contentsId',
+      as: 'exchangeProposal',
+    });
   }
 }
 

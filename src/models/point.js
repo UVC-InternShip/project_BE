@@ -1,30 +1,31 @@
 import { Sequelize } from 'sequelize';
 
-class Category extends Sequelize.Model {
+class Point extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        categoryId: {
+        pointId: {
           type: Sequelize.INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
-        categoryName: {
-          type: Sequelize.STRING(100),
+        pointEarned: {
+          type: Sequelize.INTEGER,
           allowNull: false,
         },
       },
       {
         sequelize,
         underscored: true,
-        timestamps: false,
+        timestamps: true,
+        paranoid: true,
       }
     );
   }
 
   static associate(models) {
-    this.hasMany(models.Contents, { foreignKey: 'categoryId', as: 'contents' });
+    this.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   }
 }
 
-export default Category;
+export default Point;

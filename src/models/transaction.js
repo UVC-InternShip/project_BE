@@ -1,23 +1,13 @@
 import { Sequelize } from 'sequelize';
 
-class ContentsImg extends Sequelize.Model {
+class Transactions extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        imageId: {
+        transactionId: {
           type: Sequelize.INTEGER,
-          autoIncrement: true,
           primaryKey: true,
-          allowNull: false,
-        },
-        imageUrl: {
-          type: Sequelize.STRING(255),
-          allowNull: true,
-        },
-        order: {
-          type: Sequelize.INTEGER,
-          allowNull: true,
-          unique: true,
+          autoIncrement: true,
         },
       },
       {
@@ -28,12 +18,23 @@ class ContentsImg extends Sequelize.Model {
       }
     );
   }
+
   static associate(models) {
     this.belongsTo(models.Contents, {
       foreignKey: 'contentsId',
-      as: 'contents',
+      as: 'content',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'offererId',
+      targetKey: 'userId',
+      as: 'offerer',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'proposerId',
+      targetKey: 'userId',
+      as: 'proposer',
     });
   }
 }
 
-export default ContentsImg;
+export default Transactions;
