@@ -52,11 +52,44 @@ class User extends Sequelize.Model {
       },
       {
         sequelize,
+        modelName: 'User',
+        tableName: 'users',
         underscored: true,
         timestamps: true,
         paranoid: true,
       }
     );
+  }
+
+  static associate(models) {
+    this.hasMany(models.Transactions, {
+      foreignKey: 'offererId',
+      sourceKey: 'userId',
+      as: 'offerTransactions',
+    });
+    this.hasMany(models.Transactions, {
+      foreignKey: 'proposerId',
+      sourceKey: 'userId',
+      as: 'proposeTransactions',
+    });
+    this.hasMany(models.Notifications, {
+      foreignKey: 'userId',
+      as: 'notifications',
+    });
+    this.hasMany(models.Point, {
+      foreignKey: 'userId',
+      as: 'point',
+    });
+    this.hasMany(models.ExchangeProposal, {
+      foreignKey: 'proposerUserId',
+      sourceKey: 'userId',
+      as: 'ExchangeProposal',
+    });
+    this.hasMany(models.ExchangeProposal, {
+      foreignKey: 'offererUserId',
+      sourceKey: 'userId',
+      as: 'ExchangeReceiver',
+    });
   }
 }
 
