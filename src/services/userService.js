@@ -74,6 +74,16 @@ const userService = {
       throw error;
     }
   },
+
+  async checkUser(phoneNumber) {
+    try {
+      const checkUser = await userDao.getUserPhoneNumber(phoneNumber);
+      return checkUser;
+    } catch (error) {
+      logger.error('userService.checkUser error:', error.message, error.stack);
+      throw error;
+    }
+  },
 };
 
 export default userService;

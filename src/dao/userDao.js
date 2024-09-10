@@ -38,11 +38,31 @@ const userDao = {
     try {
       const selectAll = await User.findAll({
         where: { role: 'user' },
-        order: [['id', 'ASC']],
+        order: [['userId', 'ASC']],
       });
       return selectAll;
     } catch (error) {
       logger.error('Unexpected error on findAll:', error.message, error.stack);
+      throw error;
+    }
+  },
+
+  // 전화번호 유무 확인
+  async getUserPhoneNumber(phoneNumber) {
+    try {
+      const isCheck = await User.findOne({
+        where: { phoneNumber: phoneNumber },
+      });
+      if (!isCheck) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      logger.error(
+        'getUserPhoneNumber error on findOne:',
+        error.message,
+        error.stack
+      );
       throw error;
     }
   },
@@ -52,7 +72,7 @@ const userDao = {
     console.log(params);
     try {
       await User.update(params, {
-        where: { id: params.id },
+        where: { userId: params.id },
       });
       return true;
     } catch (error) {
