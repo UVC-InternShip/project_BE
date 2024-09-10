@@ -35,9 +35,9 @@ class ExchangeProposal extends Sequelize.Model {
       as: 'content',
     });
     this.belongsTo(models.Contents, {
-      foreignKey: 'proposeContentId',
+      foreignKey: 'proposerContentId',
       targetKey: 'contentsId',
-      as: 'proposeContent',
+      as: 'proposerContent',
     });
   }
 }

@@ -19,7 +19,7 @@ db.sequelize
   .then(() => {
     logger.info('DB Connect Success!');
     db.sequelize
-      .sync({ force: true })
+      .sync({ force: false, alter: true })
       .then(async () => {
         logger.info('DB Sync Success!');
       })

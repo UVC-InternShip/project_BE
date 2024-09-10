@@ -32,13 +32,12 @@ const upload = multer({ storage: storage });
 router.post('/register', upload.array('images', 5), async (req, res, next) => {
   try {
     const params = {
-      user_id: req.body.user_id,
-      category_id: req.body.category_id,
+      userId: req.body.userId,
+      categoryId: req.body.categoryId,
       title: req.body.title,
       description: req.body.description,
-      content_type: req.body.content_type,
+      contentsType: req.body.contentsType,
       purpose: req.body.purpose,
-      status: req.body.status,
     };
     const images = req.files; // Multer로 받은 이미지 파일들
     //console.log('🚀 ~ router.post ~ images:', images);
@@ -95,7 +94,7 @@ router.delete('/delete/:id', async (req, res, next) => {
 });
 
 //상품 리스트 불러오기
-router.get('/list_all', async (req, res, next) => {
+router.get('/listAll', async (req, res, next) => {
   try {
     const result = await contentsService.listGet();
 
@@ -106,14 +105,31 @@ router.get('/list_all', async (req, res, next) => {
 });
 
 //유저별 상품 리스트 가져오기
-router.post('/list_user', async (req, res, next) => {
+router.post('/listUser', async (req, res, next) => {
   try {
     const params = {
-      id: req.body.id,
+      userId: req.body.userId,
     };
     console.log('🚀 ~ router.post ~ params:', params);
 
     const result = await contentsService.listUserGet(params);
+    console.log('🚀 ~ router.post ~ params:', params);
+
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//번호별 상품 리스트 가져오기
+router.post('/listContents', async (req, res, next) => {
+  try {
+    const params = {
+      contentsId: req.body.contentsId,
+    };
+    console.log('🚀 ~ router.post ~ params:', params);
+
+    const result = await contentsService.listContentsGet(params);
     console.log('🚀 ~ router.post ~ params:', params);
 
     res.status(200).json({ state: 'success', result });
@@ -127,17 +143,12 @@ router.post('/search', async (req, res, next) => {
   try {
     const searchParams = {
       title: req.body.searchName,
+      purpose: req.body.purpose,
     };
-    let type;
-    if (req.body.searchType == 1) {
-      type = 'exchange';
-    } else if (req.body.searchType == 2) {
-      type = 'sharing';
-    }
 
     console.log('🚀 ~ router.post ~ params:', searchParams);
 
-    const result = await contentsService.search(searchParams, type);
+    const result = await contentsService.search(searchParams);
     res.status(200).json({ state: 'success', result });
   } catch (error) {
     next(error);
@@ -159,7 +170,7 @@ router.get('/category', async (req, res, next) => {
 router.post('/category', async (req, res, next) => {
   try {
     const params = {
-      category_name: req.body.category_name,
+      categoryName: req.body.categoryName,
     };
     console.log('🚀 ~ router.post ~ params:', params);
 

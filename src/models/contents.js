@@ -16,9 +16,8 @@ class Contents extends Sequelize.Model {
         description: {
           type: Sequelize.TEXT,
         },
-        content_type: {
+        contentsType: {
           type: Sequelize.ENUM('상품', '서비스'),
-
           allowNull: false,
         },
         purpose: {
@@ -59,9 +58,9 @@ class Contents extends Sequelize.Model {
       as: 'contentImg',
     });
     this.hasMany(models.ExchangeProposal, {
-      foreignKey: 'proposeContentId',
+      foreignKey: 'proposerContentId',
       sourceKey: 'contentsId',
-      as: 'proposeContent',
+      as: 'proposerContent',
     });
     this.hasMany(models.ExchangeProposal, {
       foreignKey: 'contentsId',
