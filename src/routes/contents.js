@@ -8,14 +8,14 @@ import contentsService from '../services/contentsService.js';
 // Multer 설정
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = 'src/uploads/'; // 파일을 저장할 경로
+    const uploadPath = path.resolve('D:/image'); // 파일을 저장할 절대 경로
 
     // 폴더가 존재하는지 확인, 없으면 생성
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true }); // 폴더가 없으면 생성 (하위 디렉토리도 포함하여 생성 가능)
     }
 
-    cb(null, uploadPath);
+    cb(null, uploadPath); // 업로드 경로 설정
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -39,7 +39,14 @@ router.post('/register', upload.array('images', 5), async (req, res, next) => {
       contentsType: req.body.contentsType,
       purpose: req.body.purpose,
     };
-    const images = req.files; // Multer로 받은 이미지 파일들
+    const images = req.files.map((file) => {
+      // Windows 형식으로 경로 변환
+      const windowsPath = file.path.replace(/\//g, '\\');
+      return {
+        filename: file.filename,
+        path: windowsPath, // Windows 경로 형식으로 저장
+      };
+    });
     //console.log('🚀 ~ router.post ~ images:', images);
     console.log('🚀 ~ router.post ~ params:', params);
 
@@ -96,6 +103,7 @@ router.delete('/delete/:id', async (req, res, next) => {
 //상품 리스트 불러오기
 router.get('/listAll', async (req, res, next) => {
   try {
+    console.log('상품_listAll');
     const result = await contentsService.listGet();
 
     res.status(200).json({ state: 'success', result });

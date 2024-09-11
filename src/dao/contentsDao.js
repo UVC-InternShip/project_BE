@@ -92,7 +92,9 @@ const ContentsDao = {
   async listGet() {
     // eslint-disable-next-line no-useless-catch
     try {
-      const listInfo = await Contents.findAll();
+      const listInfo = await Contents.findAll({
+        order: [['contentsId', 'ASC']], // contentsId 기준 오름차순 정렬
+      });
 
       // 2. 모든 상품의 이미지 조회
       const contentsIds = listInfo.map((content) => content.contentsId);
@@ -236,8 +238,38 @@ const ContentsDao = {
       }
       console.log('🚀 ~ search ~ whereClause2:', setQuery);
       // 이후의 쿼리 실행
-      const results = await Contents.findAll(setQuery);
-      return results;
+      const results = await Contents.findAll({
+        setQuery, // 조건을 설정하는 부분 (필요한 경우 설정)
+        order: [['contentsId', 'ASC']], // contentsId 기준 오름차순 정렬
+      });
+
+      // 2. 모든 상품의 이미지 조회
+      const contentsIds = results.map((content) => content.contentsId);
+      const images = await ContentsImg.findAll({
+        where: { contentsId: contentsIds }, // 해당하는 상품들의 이미지 조회
+        attributes: ['contentsId', 'imageUrl', 'order'], // 필요한 필드만 선택
+      });
+
+      // 3. 이미지 데이터를 contentsId를 기준으로 매핑
+      const imagesByContentId = images.reduce((acc, image) => {
+        if (!acc[image.contentsId]) {
+          acc[image.contentsId] = [];
+        }
+        acc[image.contentsId].push({
+          imageUrl: image.imageUrl,
+          order: image.order,
+        });
+        return acc;
+      }, {});
+
+      // 4. 상품 리스트에 이미지 데이터를 추가
+      const contentsWithImages = results.map((content) => {
+        return {
+          ...content.toJSON(),
+          images: imagesByContentId[content.contentsId] || [], // 해당 상품에 이미지가 있으면 추가, 없으면 빈 배열
+        };
+      });
+      return contentsWithImages;
     } catch (error) {
       console.error(error);
       throw error;

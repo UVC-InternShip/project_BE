@@ -86,7 +86,7 @@ const ExchangesDao = {
     // eslint-disable-next-line no-useless-catch
     try {
       const selectedInfo = await ExchangeProposal.findAll({
-        where: { proposerContentId: params.contentsId },
+        where: { proposerContentId: params.proposerContentId },
       });
 
       return selectedInfo;

@@ -109,7 +109,7 @@ router.post('/userList', async (req, res, next) => {
 router.post('/contentsList', async (req, res, next) => {
   try {
     const params = {
-      contentsId: req.body.contentsId,
+      proposerContentId: req.body.proposerContentId,
     };
     console.log('🚀 ~ router.post ~ params:', params);
 
