@@ -163,7 +163,6 @@ const ContentsDao = {
           images: imagesByContentId[content.contentsId] || [], // 해당 상품에 이미지가 있으면 추가, 없으면 빈 배열
         };
       });
-
       return contentsWithImages;
     } catch (err) {
       throw err;
