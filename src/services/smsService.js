@@ -3,6 +3,9 @@ import redis from '../config/redis.js';
 import { generateVerificationCode } from '../utils/codeGenerator.js';
 import logger from '../../lib/logger.js';
 import dotenv from 'dotenv';
+import userDao from '../dao/userDao.js';
+import contentsDao from '../dao/contentsDao.js';
+import { generateToken } from '../config/jwt.js';
 
 dotenv.config();
 
@@ -43,7 +46,21 @@ export const verifyCode = async (phoneNumber, code) => {
     throw new Error('잘못된 인증 코드입니다.');
   }
 
-  await redis.del(`sms:${phoneNumber}`);
-
-  return true;
+  // 코드 일치할때 신규회원인지 기존회원인지 확인
+  const user = await userDao.getUserPhoneNumber(phoneNumber);
+  if (user) {
+    // 기존 회원일 경우 토큰 생성
+    const token = generateToken({ userId: user.userId });
+    const contentsList = contentsDao.listGet();
+    await redis.del(`sms:${phoneNumber}`);
+    return {
+      isUser: true,
+      user,
+      token,
+      contentsList,
+    };
+  } else {
+    await redis.del(`sms:${phoneNumber}`);
+    return false;
+  }
 };

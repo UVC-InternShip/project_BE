@@ -1,6 +1,5 @@
 import express from 'express';
 import logger from '../../lib/logger.js';
-import userService from '../services/userService.js';
 import { sendVerificationSMS, verifyCode } from '../services/smsService.js';
 
 const router = express.Router();
@@ -29,14 +28,15 @@ router.post('/verify-code', async (req, res) => {
         .json({ error: '휴대폰 번호와 인증 코드가 필요합니다.' });
     }
     const result = await verifyCode(phoneNumber, code);
-    if (result == true) {
-      const checkUser = await userService.checkUser(phoneNumber);
-      if (checkUser == true) {
-        return res.status(200).json('이미 가입된 회원 입니다.');
-        // 토큰 발급 및 상품 리스트 return
-      } else {
-        return res.status(200).json('신규 회원 입니다.');
-      }
+    if (result.isUser) {
+      res.status(200).json({
+        message: '기존의 회원 정보로 로그인 되었습니다.',
+        user: result.user,
+        token: result.token,
+        contents: result.contentsList,
+      });
+    } else {
+      res.status(200).json('신규 회원 닉네임 입력해주세요.');
     }
   } catch (error) {
     logger.error('인증 코드 확인 중 오류 발생:', error);

@@ -1,16 +1,29 @@
 import userDao from '../dao/userDao.js';
 import logger from '../../lib/logger.js';
+import { generateToken } from '../config/jwt.js';
+import contentsDao from '../dao/contentsDao.js';
 
 const userService = {
   async createUser(params) {
     try {
-      const insert = await userDao.insert(params);
-      return insert;
+      const result = await userDao.insert(params);
+      if (result.success) {
+        const token = generateToken({ userId: result.newUser.userId });
+        const contentsList = contentsDao.listGet();
+        return {
+          success: true,
+          user: result.newUser,
+          token,
+          contentsList,
+        };
+      }
+      return result;
     } catch (error) {
       logger.error('userService.createUser_ERROR', error.message);
       throw error;
     }
   },
+
   async getUserInfo(params) {
     try {
       const getUserInfo = await userDao.getUserById(params);
@@ -75,12 +88,16 @@ const userService = {
     }
   },
 
-  async checkUser(phoneNumber) {
+  async findUserByPhone(phoneNumber) {
     try {
-      const checkUser = await userDao.getUserPhoneNumber(phoneNumber);
-      return checkUser;
+      const findUserByPhone = await userDao.getUserPhoneNumber(phoneNumber);
+      return findUserByPhone;
     } catch (error) {
-      logger.error('userService.checkUser error:', error.message, error.stack);
+      logger.error(
+        'userService.findUserByPhone error:',
+        error.message,
+        error.stack
+      );
       throw error;
     }
   },

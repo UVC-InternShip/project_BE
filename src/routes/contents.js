@@ -5,13 +5,13 @@ const router = express.Router();
 
 //상품 등록
 router.post('/register', async (req, res, next) => {
+  console.log(req.body);
   try {
     const params = {
-      title: req.query.title,
-      description: req.query.description,
-      content_type: req.query.content_type,
-      purpose: req.query.email,
-      status: req.query.purpose,
+      title: req.body.title,
+      description: req.body.description,
+      content_type: req.body.contentType,
+      purpose: req.body.purpose,
     };
 
     const result = await contentsService.register(params);

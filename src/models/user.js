@@ -11,6 +11,7 @@ class User extends Sequelize.Model {
         },
         phoneNumber: {
           type: Sequelize.STRING(30),
+          unique: true,
           allowNull: false,
           validate: {
             isKoreanPhoneNumber(value) {

@@ -5,10 +5,9 @@ import { ValidationError } from 'sequelize';
 const userDao = {
   // 회원가입
   async insert(params) {
-    console.log(params);
     try {
-      const insertInfo = await User.create(params);
-      return insertInfo;
+      const newUser = await User.create(params);
+      return { success: true, newUser };
     } catch (error) {
       if (error instanceof ValidationError) {
         logger.warn('Validation error on insert:', error.message);
@@ -50,13 +49,14 @@ const userDao = {
   // 전화번호 유무 확인
   async getUserPhoneNumber(phoneNumber) {
     try {
-      const isCheck = await User.findOne({
+      const isUser = await User.findOne({
         where: { phoneNumber: phoneNumber },
       });
-      if (!isCheck) {
-        return false;
+      if (isUser) {
+        // 유저 존재 시
+        return isUser;
       }
-      return true;
+      return false;
     } catch (error) {
       logger.error(
         'getUserPhoneNumber error on findOne:',
