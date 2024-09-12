@@ -77,7 +77,7 @@ class User extends Sequelize.Model {
       foreignKey: 'userId',
       as: 'notifications',
     });
-    this.hasMany(models.Point, {
+    this.hasOne(models.Point, {
       foreignKey: 'userId',
       as: 'point',
     });
