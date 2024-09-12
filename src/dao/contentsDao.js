@@ -140,19 +140,16 @@ const ContentsDao = {
   },
 
   //상품 리스트 가져오기
-  listGet(params) {
-    return new Promise((resolve, reject) => {
-      Contents.findOne({
-        //attributes: ['id', 'user_i_d', 'password', 'name'],
-        where: [{ email: params.email }],
-      })
-        .then((selectedInfo) => {
-          resolve(selectedInfo);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+  // 상품 리스트 가져오기
+  async listGet() {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const listInfo = await Contents.findAll();
+
+      return listInfo;
+    } catch (err) {
+      throw err;
+    }
   },
 
   //유저별 상품 리스트 가져오기

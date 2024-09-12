@@ -5,10 +5,9 @@ import { ValidationError } from 'sequelize';
 const userDao = {
   // 회원가입
   async insert(params) {
-    console.log(params);
     try {
-      const insertInfo = await User.create(params);
-      return insertInfo;
+      const newUser = await User.create(params);
+      return { success: true, newUser };
     } catch (error) {
       if (error instanceof ValidationError) {
         logger.warn('Validation error on insert:', error.message);
@@ -38,11 +37,32 @@ const userDao = {
     try {
       const selectAll = await User.findAll({
         where: { role: 'user' },
-        order: [['id', 'ASC']],
+        order: [['userId', 'ASC']],
       });
       return selectAll;
     } catch (error) {
       logger.error('Unexpected error on findAll:', error.message, error.stack);
+      throw error;
+    }
+  },
+
+  // 전화번호 유무 확인
+  async getUserPhoneNumber(phoneNumber) {
+    try {
+      const isUser = await User.findOne({
+        where: { phoneNumber: phoneNumber },
+      });
+      if (isUser) {
+        // 유저 존재 시
+        return isUser;
+      }
+      return false;
+    } catch (error) {
+      logger.error(
+        'getUserPhoneNumber error on findOne:',
+        error.message,
+        error.stack
+      );
       throw error;
     }
   },
@@ -52,7 +72,7 @@ const userDao = {
     console.log(params);
     try {
       await User.update(params, {
-        where: { id: params.id },
+        where: { userId: params.id },
       });
       return true;
     } catch (error) {

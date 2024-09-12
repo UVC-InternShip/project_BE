@@ -25,14 +25,9 @@ class Contents extends Sequelize.Model {
           allowNull: false,
         },
         status: {
-          type: Sequelize.ENUM(
-            '교환 대기중',
-            '나눔 대기중',
-            '교환중',
-            '나눔중',
-            '완료'
-          ),
-          allowNull: false,
+          type: Sequelize.ENUM('대기중', '교환중', '나눔중', '완료'),
+          allowNull: true,
+          defaultValue: '대기중',
         },
       },
       {
