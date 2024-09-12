@@ -1,4 +1,5 @@
 import User from '../models/user.js';
+import Point from '../models/point.js';
 import logger from '../../lib/logger.js';
 import { ValidationError } from 'sequelize';
 
@@ -24,8 +25,29 @@ const userDao = {
     try {
       const selectOne = await User.findOne({
         where: { userId: params.userId },
+        include: [
+          {
+            model: Point,
+            as: 'point',
+            attributes: ['pointEarned'],
+            required: false,
+          },
+        ],
       });
-      return selectOne;
+      // 사용자 못찾을경우
+      if (!selectOne) {
+        return null;
+      }
+      // point null일 경우 0으로 변환해서 보냄
+      const pointEarned = selectOne.point ? selectOne.point.pointEarned : 0;
+
+      // 필요한 데이터만 포함하는 새 객체 생성
+      const userData = {
+        ...selectOne.get({ plain: true }), // Sequelize 인스턴스를 일반 객체로 변환
+        pointEarned: pointEarned,
+      };
+
+      return userData;
     } catch (error) {
       logger.error('Unexpected error on findOne:', error.message, error.stack);
       throw error;
