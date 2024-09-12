@@ -5,7 +5,6 @@ import contentRouter from './contents.js';
 import changerRouter from './exchangeProposal.js';
 import smsRouter from './sms.js';
 
-
 const router = express.Router();
 
 router.use('/users', userRouter);
