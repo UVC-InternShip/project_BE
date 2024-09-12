@@ -28,13 +28,6 @@ Object.values(db).forEach((model) => {
     model.init(sequelize);
   }
 });
-// User.init(sequelize);
-// Contents.init(sequelize);
-// ExchangeProposal.init(sequelize);
-// Transactions.init(sequelize);
-// Point.init(sequelize);
-// Notifications.init(sequelize);
-// ContentsImg.init(sequelize);
 
 // 모델 간 관계 설정
 Object.values(db).forEach((model) => {

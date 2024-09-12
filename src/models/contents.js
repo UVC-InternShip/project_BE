@@ -16,17 +16,18 @@ class Contents extends Sequelize.Model {
         description: {
           type: Sequelize.TEXT,
         },
-        content_type: {
+        contentsType: {
           type: Sequelize.ENUM('상품', '서비스'),
           allowNull: false,
         },
         purpose: {
           type: Sequelize.ENUM('교환', '나눔', '택배 교환', '택배 나눔'),
           allowNull: false,
+          defaultValue: '교환',
         },
         status: {
-          type: Sequelize.ENUM('대기중', '교환중', '나눔중', '완료'),
-          allowNull: true,
+          type: Sequelize.ENUM('대기중', '약속중', '완료'),
+          allowNull: false,
           defaultValue: '대기중',
         },
       },
@@ -57,9 +58,9 @@ class Contents extends Sequelize.Model {
       as: 'contentImg',
     });
     this.hasMany(models.ExchangeProposal, {
-      foreignKey: 'proposeContentId',
+      foreignKey: 'proposerContentId',
       sourceKey: 'contentsId',
-      as: 'proposeContent',
+      as: 'proposerContent',
     });
     this.hasMany(models.ExchangeProposal, {
       foreignKey: 'contentsId',

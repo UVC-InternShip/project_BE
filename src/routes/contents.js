@@ -1,20 +1,56 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+const router = express.Router();
 import contentsService from '../services/contentsService.js';
 
-const router = express.Router();
+// Multer 설정
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.resolve('D:/image'); // 파일을 저장할 절대 경로
+
+    // 폴더가 존재하는지 확인, 없으면 생성
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true }); // 폴더가 없으면 생성 (하위 디렉토리도 포함하여 생성 가능)
+    }
+
+    cb(null, uploadPath); // 업로드 경로 설정
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
+});
+
+const upload = multer({ storage: storage });
 
 //상품 등록
-router.post('/register', async (req, res, next) => {
-  console.log(req.body);
+router.post('/register', upload.array('images', 5), async (req, res, next) => {
   try {
     const params = {
+      userId: req.body.userId,
+      categoryId: req.body.categoryId,
       title: req.body.title,
       description: req.body.description,
-      content_type: req.body.contentType,
+      contentsType: req.body.contentsType,
       purpose: req.body.purpose,
     };
+    const images = req.files.map((file) => {
+      // Windows 형식으로 경로 변환
+      const windowsPath = file.path.replace(/\//g, '\\');
+      return {
+        filename: file.filename,
+        path: windowsPath, // Windows 경로 형식으로 저장
+      };
+    });
+    //console.log('🚀 ~ router.post ~ images:', images);
+    console.log('🚀 ~ router.post ~ params:', params);
 
-    const result = await contentsService.register(params);
+    const result = await contentsService.register(params, images);
 
     res.status(200).json({ state: 'success', result });
   } catch (error) {
@@ -25,16 +61,10 @@ router.post('/register', async (req, res, next) => {
 //상품 수정
 router.put('/update', async (req, res, next) => {
   try {
-    const params = {
-      title: req.query.ids ? req.query.ids.split(',') : null,
-      description: req.query.name,
-      content_type: req.query.userID,
-      purpose: req.query.email,
-      status: req.query.phone,
-    };
+    const updateData = req.body;
+    console.log('🚀 ~ router.put ~ params:', updateData);
 
-    const result = await contentsService.edit(params);
-
+    const result = await contentsService.edit(updateData);
     res.status(200).json({ state: 'success', result });
   } catch (error) {
     next(error);
@@ -44,16 +74,10 @@ router.put('/update', async (req, res, next) => {
 //상품 판매 상태 변경
 router.put('/status', async (req, res, next) => {
   try {
-    const params = {
-      title: req.query.ids ? req.query.ids.split(',') : null,
-      description: req.query.name,
-      content_type: req.query.userID,
-      purpose: req.query.email,
-      status: req.query.phone,
-    };
+    const updateData = req.body;
+    console.log('🚀 ~ router.put ~ params:', updateData);
 
-    const result = await contentsService.statusChange(params);
-
+    const result = await contentsService.statusChange(updateData);
     res.status(200).json({ state: 'success', result });
   } catch (error) {
     next(error);
@@ -61,9 +85,12 @@ router.put('/status', async (req, res, next) => {
 });
 
 //상품 삭제
-router.delete('/delete/:contents_id', async (req, res, next) => {
+router.delete('/delete/:id', async (req, res, next) => {
   try {
-    const contentsId = req.params.contents_id;
+    const contentsId = req.params.id;
+    console.log('🚀 ~ router.delete ~ contentsId:', contentsId);
+
+    //console.log('🚀 ~ router.delete ~ params:', params);
 
     const result = await contentsService.delete(contentsId);
 
@@ -74,17 +101,10 @@ router.delete('/delete/:contents_id', async (req, res, next) => {
 });
 
 //상품 리스트 불러오기
-router.post('/list_all', async (req, res, next) => {
+router.get('/listAll', async (req, res, next) => {
   try {
-    const params = {
-      title: req.query.ids ? req.query.ids.split(',') : null,
-      description: req.query.name,
-      content_type: req.query.userID,
-      purpose: req.query.email,
-      status: req.query.phone,
-    };
-
-    const result = await contentsService.update(params);
+    console.log('상품_listAll');
+    const result = await contentsService.listGet();
 
     res.status(200).json({ state: 'success', result });
   } catch (error) {
@@ -93,17 +113,32 @@ router.post('/list_all', async (req, res, next) => {
 });
 
 //유저별 상품 리스트 가져오기
-router.post('/list_user', async (req, res, next) => {
+router.post('/listUser', async (req, res, next) => {
   try {
     const params = {
-      title: req.query.ids ? req.query.ids.split(',') : null,
-      description: req.query.name,
-      content_type: req.query.userID,
-      purpose: req.query.email,
-      status: req.query.phone,
+      userId: req.body.userId,
     };
+    console.log('🚀 ~ router.post ~ params:', params);
 
-    const result = await contentsService.list(params);
+    const result = await contentsService.listUserGet(params);
+    console.log('🚀 ~ router.post ~ params:', params);
+
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//번호별 상품 리스트 가져오기
+router.post('/listContents', async (req, res, next) => {
+  try {
+    const params = {
+      contentsId: req.body.contentsId,
+    };
+    console.log('🚀 ~ router.post ~ params:', params);
+
+    const result = await contentsService.listContentsGet(params);
+    console.log('🚀 ~ router.post ~ params:', params);
 
     res.status(200).json({ state: 'success', result });
   } catch (error) {
@@ -114,16 +149,14 @@ router.post('/list_user', async (req, res, next) => {
 //상품 검색
 router.post('/search', async (req, res, next) => {
   try {
-    const params = {
-      title: req.query.ids ? req.query.ids.split(',') : null,
-      description: req.query.name,
-      content_type: req.query.userID,
-      purpose: req.query.email,
-      status: req.query.phone,
+    const searchParams = {
+      title: req.body.searchName,
+      purpose: req.body.purpose,
     };
 
-    const result = await contentsService.list(params);
+    console.log('🚀 ~ router.post ~ params:', searchParams);
 
+    const result = await contentsService.search(searchParams);
     res.status(200).json({ state: 'success', result });
   } catch (error) {
     next(error);
@@ -131,17 +164,25 @@ router.post('/search', async (req, res, next) => {
 });
 
 //카테고리 가져오기
+router.get('/category', async (req, res, next) => {
+  try {
+    const result = await contentsService.categoryGet();
+
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//카테고리 추가
 router.post('/category', async (req, res, next) => {
   try {
     const params = {
-      title: req.query.ids ? req.query.ids.split(',') : null,
-      description: req.query.name,
-      content_type: req.query.userID,
-      purpose: req.query.email,
-      status: req.query.phone,
+      categoryName: req.body.categoryName,
     };
+    console.log('🚀 ~ router.post ~ params:', params);
 
-    const result = await contentsService.list(params);
+    const result = await contentsService.categoryPost(params);
 
     res.status(200).json({ state: 'success', result });
   } catch (error) {

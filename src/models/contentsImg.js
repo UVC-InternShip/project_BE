@@ -10,6 +10,7 @@ class ContentsImg extends Sequelize.Model {
           primaryKey: true,
           allowNull: false,
         },
+
         imageUrl: {
           type: Sequelize.STRING(255),
           allowNull: true,
@@ -17,7 +18,7 @@ class ContentsImg extends Sequelize.Model {
         order: {
           type: Sequelize.INTEGER,
           allowNull: true,
-          unique: true,
+          unique: false, // 하나의 상품에 여러 이미지가 있을 수 있음
         },
       },
       {
@@ -28,6 +29,7 @@ class ContentsImg extends Sequelize.Model {
       }
     );
   }
+
   static associate(models) {
     this.belongsTo(models.Contents, {
       foreignKey: 'contentsId',
