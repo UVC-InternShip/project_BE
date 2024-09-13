@@ -39,6 +39,22 @@ router.post('/register', upload.array('images', 5), async (req, res, next) => {
       contentsType: req.body.contentsType,
       purpose: req.body.purpose,
     };
+
+    // title과 description의 빈값 또는 null 체크
+    if (!params.title || params.title.trim() === '') {
+      return res.status(400).json({
+        state: 'error',
+        message: '제목을 입력해 주세요.',
+      });
+    }
+
+    if (!params.description || params.description.trim() === '') {
+      return res.status(400).json({
+        state: 'error',
+        message: '설명을 입력해 주세요.',
+      });
+    }
+
     const images = req.files.map((file) => {
       // Windows 형식으로 경로 변환
       const windowsPath = file.path.replace(/\//g, '\\');
@@ -47,27 +63,71 @@ router.post('/register', upload.array('images', 5), async (req, res, next) => {
         path: windowsPath, // Windows 경로 형식으로 저장
       };
     });
-    //console.log('🚀 ~ router.post ~ images:', images);
+    console.log('🚀 ~ router.post ~ images:', images);
     console.log('🚀 ~ router.post ~ params:', params);
 
     const result = await contentsService.register(params, images);
 
     res.status(200).json({ state: 'success', result });
   } catch (error) {
-    next(error);
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      // 외래키 제약 조건 위반일 경우
+      return res.status(400).json({
+        state: 'error',
+        message: '잘못된 외래키 값입니다. 올바른 데이터를 입력해 주세요.',
+      });
+    }
+
+    // 기타 서버 오류 처리
+    res.status(500).json({
+      state: 'error',
+      message: '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+    });
   }
 });
 
 //상품 수정
 router.put('/update', async (req, res, next) => {
   try {
-    const updateData = req.body;
+    const updateData = {
+      contentsId: req.body.contentsId,
+      title: req.body.title,
+      description: req.body.description,
+    };
+
     console.log('🚀 ~ router.put ~ params:', updateData);
+
+    // title과 description의 빈값 또는 null 체크
+    if (!updateData.title || updateData.title.trim() === '') {
+      return res.status(400).json({
+        state: 'error',
+        message: '제목을 입력해 주세요.',
+      });
+    }
+
+    if (!updateData.description || updateData.description.trim() === '') {
+      return res.status(400).json({
+        state: 'error',
+        message: '설명을 입력해 주세요.',
+      });
+    }
 
     const result = await contentsService.edit(updateData);
     res.status(200).json({ state: 'success', result });
   } catch (error) {
-    next(error);
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      // 외래키 제약 조건 위반일 경우
+      return res.status(400).json({
+        state: 'error',
+        message: '잘못된 외래키 값입니다. 올바른 데이터를 입력해 주세요.',
+      });
+    }
+
+    // 기타 서버 오류 처리
+    res.status(500).json({
+      state: 'error',
+      message: '서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+    });
   }
 });
 
@@ -76,6 +136,13 @@ router.put('/status', async (req, res, next) => {
   try {
     const updateData = req.body;
     console.log('🚀 ~ router.put ~ params:', updateData);
+    // title과 description의 빈값 또는 null 체크
+    if (!updateData.title || updateData.title.trim() === '') {
+      return res.status(400).json({
+        state: 'error',
+        message: '제목을 입력해 주세요.',
+      });
+    }
 
     const result = await contentsService.statusChange(updateData);
     res.status(200).json({ state: 'success', result });

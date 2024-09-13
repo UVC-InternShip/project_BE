@@ -7,12 +7,12 @@ import ContentsImg from '../models/contentsImg.js';
 const ContentsDao = {
   // 상품 등록
   async insert(params) {
-    // eslint-disable-next-line no-useless-catch
     try {
       const inserted = await Contents.create(params);
       console.log('🚀 ~ ContentsDao.create ~ inserted:', inserted);
       return inserted;
     } catch (err) {
+      console.error('1111111111' + err);
       throw err;
     }
   },
@@ -20,12 +20,13 @@ const ContentsDao = {
   // 이미지 경로 등록
   async insertContentImages(imagePaths) {
     console.log('🚀 ~ insertContentImages ~ imagePaths:', imagePaths);
-    // eslint-disable-next-line no-useless-catch
+
     try {
       const newImages = await ContentsImg.bulkCreate(imagePaths);
       return newImages;
     } catch (error) {
-      throw error;
+      console.error('2222' + error);
+      throw error.message;
     }
   },
 
