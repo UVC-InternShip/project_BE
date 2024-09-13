@@ -34,9 +34,13 @@ router.post('/verify-code', async (req, res) => {
         user: result.user,
         token: result.token,
         contents: result.contentsList,
+        success: true,
       });
     } else {
-      res.status(200).json('신규 회원 닉네임 입력해주세요.');
+      res.status(200).json({
+        message: '신규 회원 닉네임 입력해주세요.',
+        success: false,
+      });
     }
   } catch (error) {
     logger.error('인증 코드 확인 중 오류 발생:', error);
