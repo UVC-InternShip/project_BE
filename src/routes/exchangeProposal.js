@@ -1,61 +1,52 @@
 import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import imageUploader from './imageUploader.js';
 const router = express.Router();
 import exchangeService from '../services/exchangeProposalService.js';
 
-// Multer 설정
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = 'src/uploads/'; // 파일을 저장할 경로
-
-    // 폴더가 존재하는지 확인, 없으면 생성
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true }); // 폴더가 없으면 생성 (하위 디렉토리도 포함하여 생성 가능)
-    }
-
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({ storage: storage });
-
 //제안 등록
-router.post('/register', upload.array('images', 5), async (req, res, next) => {
-  try {
-    const params1 = {
-      userId: req.body.userId,
-      categoryId: req.body.categoryId,
-      title: req.body.title,
-      description: req.body.description,
-      contentsType: req.body.contentsType,
-      purpose: req.body.purpose,
-    };
+router.post(
+  '/register',
+  imageUploader.array('images', 5),
+  async (req, res, next) => {
+    try {
+      const params1 = {
+        userId: req.body.userId,
+        categoryId: req.body.categoryId,
+        title: req.body.title,
+        description: req.body.description,
+        contentsType: req.body.contentsType,
+        purpose: req.body.purpose,
+      };
 
-    const params2 = {
-      proposerUserId: req.body.proposerUserId,
-      offererUserId: req.body.offerID,
-      proposerContentId: req.body.proposerContentId,
-    };
-    const images = req.files; // Multer로 받은 이미지 파일들
-    //console.log('🚀 ~ router.post ~ images:', images);
-    console.log('🚀 ~ router.post ~ params:', params1, params2);
+      const params2 = {
+        proposerUserId: req.body.proposerUserId,
+        offererUserId: req.body.offerID,
+        proposerContentId: req.body.proposerContentId,
+      };
 
-    const result = await exchangeService.register(params1, params2, images);
+      // req.files에서 S3의 location 필드를 사용하여 이미지 경로 처리
+      const images = req.files.map((file) => {
+        if (!file.location) {
+          throw new Error('S3 파일 업로드 실패'); // S3에 업로드된 파일이 없으면 에러 처리
+        }
 
-    res.status(200).json({ state: 'success', result });
-  } catch (error) {
-    next(error);
+        return {
+          filename: file.key,
+          path: file.location, // S3에서 제공하는 파일의 전체 경로
+        };
+      });
+
+      console.log('🚀 ~ router.post ~ images:', images);
+      console.log('🚀 ~ router.post ~ params:', params1, params2);
+
+      const result = await exchangeService.register(params1, params2, images);
+
+      res.status(200).json({ state: 'success', result });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 //제안 등록_게시판
 router.post('/registerContents', async (req, res, next) => {
