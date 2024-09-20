@@ -1,5 +1,5 @@
 import express from 'express';
-import imageUploader from './imageUploader.js';
+import { imageUploader } from './imageUploader.js'; // 중괄호를 사용해서 가져오기
 const router = express.Router();
 import contentsService from '../services/contentsService.js';
 

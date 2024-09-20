@@ -1,4 +1,5 @@
 import contentsDao from '../dao/contentsDao.js';
+import { deleteImagesByContentId } from '../routes/imageUploader.js';
 
 const contentsService = {
   //상품 등록
@@ -67,9 +68,15 @@ const contentsService = {
   //상품 삭제
   async delete(params) {
     let result = null;
+    let imgResult = null;
 
     try {
       result = await contentsDao.delete(params);
+      console.log('🚀 ~ delete ~ result:', result);
+      if (result == 1) {
+        imgResult = await deleteImagesByContentId(params);
+        console.log('🚀 ~ delete ~ imgResult:', imgResult);
+      }
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
