@@ -79,16 +79,16 @@ router.get('/listAll', async (req, res, next) => {
   }
 });
 
-//유저별 제안 리스트 가져오기
-router.post('/userList', async (req, res, next) => {
+// 유저별 제안 리스트 가져오기 (GET 요청)
+router.get('/userList', async (req, res, next) => {
   try {
     const params = {
-      proposerUserId: req.body.userId,
+      proposerUserId: req.query.userId, // 쿼리 파라미터로 전달된 userId 사용
     };
-    console.log('🚀 ~ router.post ~ params:', params);
+    console.log('🚀 ~ router.get ~ params:', params);
 
     const result = await exchangeService.listUserGet(params);
-    console.log('🚀 ~ router.post ~ params:', params);
+    console.log('🚀 ~ router.get ~ params:', params);
 
     res.status(200).json({ state: 'success', result });
   } catch (error) {
@@ -96,16 +96,16 @@ router.post('/userList', async (req, res, next) => {
   }
 });
 
-//상품별 제안 리스트 가져오기
-router.post('/contentsList', async (req, res, next) => {
+// 상품별 제안 리스트 가져오기 (GET 요청)
+router.get('/contentsList', async (req, res, next) => {
   try {
     const params = {
-      proposerContentId: req.body.proposerContentId,
+      proposerContentId: req.query.proposerContentId, // 쿼리 파라미터로 전달된 proposerContentId 사용
     };
-    console.log('🚀 ~ router.post ~ params:', params);
+    console.log('🚀 ~ router.get ~ params:', params);
 
     const result = await exchangeService.listContentsGet(params);
-    console.log('🚀 ~ router.post ~ params:', params);
+    console.log('🚀 ~ router.get ~ params:', params);
 
     res.status(200).json({ state: 'success', result });
   } catch (error) {
