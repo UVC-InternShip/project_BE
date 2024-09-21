@@ -105,6 +105,23 @@ const contentsService = {
     });
   },
 
+  //상품 리스트 가져오기
+  async listGetScroll(params) {
+    let result = null;
+
+    try {
+      result = await contentsDao.listGetScroll(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+
   //유저별 상품 리스트 가져오기
   async listUserGet(params) {
     let result = null;

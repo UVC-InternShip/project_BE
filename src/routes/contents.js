@@ -96,6 +96,27 @@ router.get('/listAll', async (req, res, next) => {
   }
 });
 
+//상품 리스트 불러오기_무한스크롤
+router.get('/listAllScroll', async (req, res, next) => {
+  try {
+    console.log('상품_listAllScroll');
+    const page = parseInt(req.query.page) || 1; // 요청받은 페이지 번호, 기본값 1
+    const limit = parseInt(req.query.limit) || 10; // 한 페이지에 보여줄 데이터 수, 기본값 10
+    const offset = (page - 1) * limit; // 시작점 계산
+
+    const params = {
+      page: page,
+      limit: limit,
+      offset: offset,
+    };
+    const result = await contentsService.listGetScroll(params);
+
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // 유저별 상품 리스트 가져오기 (GET 방식)
 router.get('/listUser', async (req, res, next) => {
   try {
