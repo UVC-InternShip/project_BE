@@ -139,12 +139,46 @@ const contentsService = {
     });
   },
 
+  //유저별 상품 리스트 가져오기
+  async listUserGetScroll(params) {
+    let result = null;
+
+    try {
+      result = await contentsDao.listUserGetScroll(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+
   //번호저별 상품 리스트 가져오기
   async listContentsGet(params) {
     let result = null;
 
     try {
       result = await contentsDao.listContentsGet(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+
+  //번호저별 상품 리스트 가져오기 무한스크롤
+  async listContentsGetScroll(params) {
+    let result = null;
+
+    try {
+      result = await contentsDao.listContentsGetScroll(params);
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
