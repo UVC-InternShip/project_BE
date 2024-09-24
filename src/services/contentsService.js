@@ -173,40 +173,6 @@ const contentsService = {
     });
   },
 
-  //번호저별 상품 리스트 가져오기 무한스크롤
-  async listContentsGetScroll(params) {
-    let result = null;
-
-    try {
-      result = await contentsDao.listContentsGetScroll(params);
-    } catch (err) {
-      return new Promise((resolve, reject) => {
-        reject(err);
-      });
-    }
-
-    return new Promise((resolve) => {
-      resolve(result);
-    });
-  },
-
-  //상품 검색
-  async search(searchParams) {
-    let result = null;
-
-    try {
-      result = await contentsDao.search(searchParams);
-    } catch (err) {
-      return new Promise((resolve, reject) => {
-        reject(err);
-      });
-    }
-
-    return new Promise((resolve) => {
-      resolve(result);
-    });
-  },
-
   //카테고리 가져오기
   async categoryGet() {
     let category = null;
