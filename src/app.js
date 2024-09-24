@@ -2,13 +2,15 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import logger from '../lib/logger.js';
-
 import db from './models/index.js';
 import indexRouter from './routes/index.js';
-
-dotenv.config();
+import { createServer } from 'http';
+import { initializedSocketIO } from './socket/index.js';
 
 const app = express();
+dotenv.config();
+
+const server = createServer(app);
 
 app.use(
   cors({
@@ -20,28 +22,29 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-db.sequelize
-  .authenticate()
-  .then(() => {
-    logger.info('DB Connect Success!');
-    db.sequelize
-      .sync({ force: false, alter: true })
-      .then(async () => {
-        logger.info('DB Sync Success!');
-      })
-      .catch((err) => {
-        logger.error('DB Sync Fail!', err);
-      });
-  })
-  .catch((err) => {
-    logger.error('DB Connect Fail!', err);
-  });
+const startServer = async () => {
+  try {
+    await db.sequelize.authenticate();
+    logger.info('DB Connect Success');
 
-app.use('/api', indexRouter);
+    await db.sequelize.sync({ force: false, alter: true });
+    logger.info('DB Sync Success');
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`http://localhost:${PORT}/api`);
-});
+    await db.initializeMongoDB();
+    logger.info('MongoDB Initialize Success');
+
+    server.listen(process.env.PORT || 3000, () => {
+      console.log(`http://localhost:${process.env.PORT || 3000}/api`);
+    });
+
+    app.use('/api', indexRouter);
+    initializedSocketIO(server);
+  } catch (error) {
+    logger.error('Server Start Fail', error);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 export default app;

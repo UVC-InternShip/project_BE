@@ -7,6 +7,7 @@ import ExchangeProposal from './exchangeProposal.js';
 import Transactions from './transaction.js';
 import Point from './point.js';
 import Notifications from './notification.js';
+import { connectToMongoDB } from './mongoModels.js';
 
 const db = {};
 
@@ -35,5 +36,10 @@ Object.values(db).forEach((model) => {
     model.associate(db);
   }
 });
+
+// MongoDB 연결 및 모델 초기화 함수
+db.initializeMongoDB = async () => {
+  await connectToMongoDB();
+};
 
 export default db;
