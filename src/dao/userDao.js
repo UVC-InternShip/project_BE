@@ -150,6 +150,21 @@ const userDao = {
       throw error;
     }
   },
+
+  async getMemberInfo(params) {
+    try {
+      const members = await User.findAll({
+        where: {
+          userId: [params.userId, params.writerId],
+        },
+        attributes: ['userId', 'name'],
+      });
+      return members;
+    } catch (error) {
+      logger.error('find member error:', error);
+      throw error;
+    }
+  },
 };
 
 export default userDao;

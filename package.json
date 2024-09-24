@@ -20,6 +20,7 @@
     "express": "^4.19.2",
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^5.9.2",
     "multer": "^1.4.5-lts.1",
     "multer-s3": "^3.0.1",
     "op": "^0.0.6",
@@ -27,6 +28,7 @@
     "pg-hstore": "^2.3.4",
     "redis": "^4.7.0",
     "sequelize": "^6.37.3",
+    "socket.io": "^4.7.5",
     "winston": "^3.14.2",
     "winston-daily-rotate-file": "^5.0.0"
   },

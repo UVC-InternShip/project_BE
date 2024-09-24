@@ -1,6 +1,7 @@
 # 바꾸자고
 
 # .env setting
+
 LOGGER_LEVER=
 PORT=
 DB_ID=
@@ -17,3 +18,4 @@ REDIS_PORT=
 JWT_SECRET=
 JWT_EXPIRES_IN=
 JWT_REFRESH_EXPIRES_IN=
+MONGO_CONNECT=mongodb+srv://DB접속아이디:DB접속비번@cluster0.jea.mongodb.net/?retryWrites=true&w=majority
