@@ -74,8 +74,58 @@ const ExchangesDao = {
       const selectedInfo = await exchangeProposer.findAll({
         where: { proposerUserId: params.proposerUserId },
       });
+      console.log('🚀 ~ listUserGet ~ selectedInfo:', selectedInfo);
 
-      return selectedInfo;
+      // 1. 모든 상품의 contentsId 가져오기
+      const contentsIds = selectedInfo.map(
+        (content) => content.dataValues.contentsId
+      );
+      // 2. 상품의 타이틀 조회
+      const contents = await Contents.findAll({
+        where: { contentsId: contentsIds },
+        attributes: ['contentsId', 'title'], // 필요한 필드만 선택
+      });
+      console.log('🚀 ~ listContentsGet ~ contents:', contents);
+
+      // 3. 각 상품별로 첫 번째 이미지 정보 조회
+      const images = await Promise.all(
+        contentsIds.map(async (contentsId) => {
+          const image = await ContentsImg.findOne({
+            where: { contentsId }, // 각 상품별로 첫 번째 이미지 조회
+            attributes: ['contentsId', 'imageUrl', 'order'], // 필요한 필드만 선택
+            order: [['order', 'ASC']], // 순서를 기준으로 첫 번째 이미지 가져오기
+          });
+          return image
+            ? { contentsId, imageUrl: image.imageUrl, order: image.order }
+            : null;
+        })
+      );
+      // 4. 이미지 데이터를 contentsId를 기준으로 매핑
+      const imagesByContentId = images.reduce((acc, image) => {
+        if (!acc[image.contentsId]) {
+          acc[image.contentsId] = [];
+        }
+        acc[image.contentsId].push({
+          imageUrl: image.imageUrl,
+          order: image.order,
+        });
+        return acc;
+      }, {});
+
+      // 5. 상품 정보에 이미지와 타이틀을 포함하여 매핑
+      const result = selectedInfo.map((info) => {
+        const contentId = info.dataValues.contentsId;
+        const content = contents.find((c) => c.contentsId === contentId);
+
+        return {
+          ...info.dataValues, // 원래의 selectedInfo 데이터
+          title: content ? content.title : null, // 상품의 타이틀 추가
+          images: imagesByContentId[contentId] || [], // 해당 상품의 이미지가 있으면 추가
+        };
+      });
+
+      console.log('🚀 ~ listContentsGet ~ result:', result);
+      return result;
     } catch (err) {
       throw err;
     }
