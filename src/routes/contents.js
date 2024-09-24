@@ -69,9 +69,9 @@ router.put('/status', async (req, res, next) => {
 });
 
 //상품 삭제
-router.delete('/delete/:id', async (req, res, next) => {
+router.delete('/delete/:contentsId', async (req, res, next) => {
   try {
-    const contentsId = req.params.id;
+    const contentsId = req.params.contentsId;
     console.log('🚀 ~ router.delete ~ contentsId:', contentsId);
 
     //console.log('🚀 ~ router.delete ~ params:', params);
@@ -205,7 +205,7 @@ router.get('/listContentsScroll', async (req, res, next) => {
 router.post('/search', async (req, res, next) => {
   try {
     const searchParams = {
-      title: req.body.searchName,
+      title: req.body.title,
       purpose: req.body.purpose,
     };
 
@@ -229,7 +229,7 @@ router.get('/category', async (req, res, next) => {
   }
 });
 
-//카테고리 추가
+//카테고리 추가 (관리자)
 router.post('/category', async (req, res, next) => {
   try {
     const params = {
