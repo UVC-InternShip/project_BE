@@ -1,4 +1,4 @@
-import exchangesDao from '../dao/exchangeProposalDao.js';
+import exchangesDao from '../dao/exchangeProposerDao.js';
 
 const exchangesService = {
   //상품 등록
@@ -18,7 +18,7 @@ const exchangesService = {
         // 다른 필요한 필드들도 추가
       };
 
-      inserted2 = await exchangesDao.insert2(inserted2Data);
+      inserted2 = await exchangesDao.insert2(inserted2Data); //제안등록
 
       // 2. 이미지 파일 경로를 저장
       if (images && images.length > 0) {

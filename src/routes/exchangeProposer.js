@@ -1,7 +1,7 @@
 import express from 'express';
 import { imageUploader } from './imageUploader.js'; // 중괄호를 사용해서 가져오기
 const router = express.Router();
-import exchangeService from '../services/exchangeProposalService.js';
+import exchangeService from '../services/exchangeProposerService.js';
 
 //제안 등록
 router.post(
@@ -20,7 +20,7 @@ router.post(
 
       const params2 = {
         proposerUserId: req.body.proposerUserId,
-        offererUserId: req.body.offerID,
+        offererUserId: req.body.offererUserId,
         proposerContentId: req.body.proposerContentId,
       };
 
@@ -68,7 +68,7 @@ router.post('/registerContents', async (req, res, next) => {
   }
 });
 
-//제안 리스트 불러오기
+//제안 리스트 불러오기 (관리자)
 router.get('/listAll', async (req, res, next) => {
   try {
     const result = await exchangeService.listGet();
@@ -83,7 +83,7 @@ router.get('/listAll', async (req, res, next) => {
 router.get('/userList', async (req, res, next) => {
   try {
     const params = {
-      proposerUserId: req.query.userId, // 쿼리 파라미터로 전달된 userId 사용
+      proposerUserId: req.query.proposerUserId, // 쿼리 파라미터로 전달된 userId 사용
     };
     console.log('🚀 ~ router.get ~ params:', params);
 
@@ -114,9 +114,9 @@ router.get('/contentsList', async (req, res, next) => {
 });
 
 //제안 삭제
-router.delete('/delete/:id', async (req, res, next) => {
+router.delete('/delete/:proposalId', async (req, res, next) => {
   try {
-    const proposalId = req.params.id;
+    const proposalId = req.params.proposalId;
     console.log('🚀 ~ router.delete ~ contentsId:', proposalId);
 
     //console.log('🚀 ~ router.delete ~ params:', params);

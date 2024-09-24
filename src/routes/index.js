@@ -2,7 +2,7 @@ import express from 'express';
 import userRouter from './user.js';
 import reputationRouter from './reputation.js';
 import contentRouter from './contents.js';
-import changerRouter from './exchangeProposal.js';
+import changerRouter from './exchangeProposer.js';
 import smsRouter from './sms.js';
 import chatRouter from './chat.js';
 

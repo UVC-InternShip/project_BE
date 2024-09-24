@@ -1,7 +1,7 @@
 // sequelize와 User 모델 불러오기
 import Contents from '../models/contents.js';
 import ContentsImg from '../models/contentsImg.js';
-import ExchangeProposal from '../models/exchangeProposal.js';
+import ExchangeProposer from '../models/exchangeProposal.js';
 
 const ExchangesDao = {
   // 상품 등록1
@@ -22,7 +22,7 @@ const ExchangesDao = {
     console.log('🚀 ~ insert2 ~ params2:', params2);
     // eslint-disable-next-line no-useless-catch
     try {
-      const exchangeInserted = await ExchangeProposal.create(params2);
+      const exchangeInserted = await ExchangeProposer.create(params2);
       console.log('🚀 ~ ExchangesDao.create ~ inserted:', exchangeInserted);
       return exchangeInserted;
     } catch (err) {
@@ -46,7 +46,7 @@ const ExchangesDao = {
   async delete(params) {
     // eslint-disable-next-line no-useless-catch
     try {
-      const deleted = await ExchangeProposal.destroy({
+      const deleted = await ExchangeProposer.destroy({
         where: { proposalId: params },
       });
       return deleted;
@@ -59,7 +59,7 @@ const ExchangesDao = {
   async listGet() {
     // eslint-disable-next-line no-useless-catch
     try {
-      const listInfo = await ExchangeProposal.findAll();
+      const listInfo = await ExchangeProposer.findAll();
 
       return listInfo;
     } catch (err) {
@@ -71,7 +71,7 @@ const ExchangesDao = {
   async listUserGet(params) {
     // eslint-disable-next-line no-useless-catch
     try {
-      const selectedInfo = await ExchangeProposal.findAll({
+      const selectedInfo = await ExchangeProposer.findAll({
         where: { proposerUserId: params.proposerUserId },
       });
 
@@ -85,7 +85,7 @@ const ExchangesDao = {
   async listContentsGet(params) {
     // eslint-disable-next-line no-useless-catch
     try {
-      const selectedInfo = await ExchangeProposal.findAll({
+      const selectedInfo = await ExchangeProposer.findAll({
         where: { proposerContentId: params.proposerContentId },
       });
 
