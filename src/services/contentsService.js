@@ -1,4 +1,5 @@
 import contentsDao from '../dao/contentsDao.js';
+import { deleteImagesByContentId } from '../routes/imageUploader.js';
 
 const contentsService = {
   //상품 등록
@@ -67,9 +68,15 @@ const contentsService = {
   //상품 삭제
   async delete(params) {
     let result = null;
+    let imgResult = null;
 
     try {
       result = await contentsDao.delete(params);
+      console.log('🚀 ~ delete ~ result:', result);
+      if (result == 1) {
+        imgResult = await deleteImagesByContentId(params);
+        console.log('🚀 ~ delete ~ imgResult:', imgResult);
+      }
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
@@ -98,6 +105,23 @@ const contentsService = {
     });
   },
 
+  //상품 리스트 가져오기
+  async listGetScroll(params) {
+    let result = null;
+
+    try {
+      result = await contentsDao.listGetScroll(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+
   //유저별 상품 리스트 가져오기
   async listUserGet(params) {
     let result = null;
@@ -115,12 +139,46 @@ const contentsService = {
     });
   },
 
+  //유저별 상품 리스트 가져오기
+  async listUserGetScroll(params) {
+    let result = null;
+
+    try {
+      result = await contentsDao.listUserGetScroll(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+
   //번호저별 상품 리스트 가져오기
   async listContentsGet(params) {
     let result = null;
 
     try {
       result = await contentsDao.listContentsGet(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+
+  //번호저별 상품 리스트 가져오기 무한스크롤
+  async listContentsGetScroll(params) {
+    let result = null;
+
+    try {
+      result = await contentsDao.listContentsGetScroll(params);
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);

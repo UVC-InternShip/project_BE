@@ -129,6 +129,54 @@ const ContentsDao = {
     }
   },
 
+  // 상품 리스트 가져오기 무한스크롤
+  async listGetScroll(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      // 데이터 조회 (예시로 Sequelize 사용)
+      const { rows, count } = await Contents.findAndCountAll({
+        offset: params.offset,
+        limit: params.limit,
+        order: [['contentsId', 'ASC']], // contentsId 기준 오름차순 정렬
+      });
+
+      // 2. 모든 상품의 이미지 조회
+      const contentsIds = rows.map((content) => content.dataValues.contentsId);
+      const images = await ContentsImg.findAll({
+        where: { contentsId: contentsIds }, // 해당하는 상품들의 이미지 조회
+        attributes: ['contentsId', 'imageUrl', 'order'], // 필요한 필드만 선택
+      });
+
+      // 3. 이미지 데이터를 contentsId를 기준으로 매핑
+      const imagesByContentId = images.reduce((acc, image) => {
+        if (!acc[image.contentsId]) {
+          acc[image.contentsId] = [];
+        }
+        acc[image.contentsId].push({
+          imageUrl: image.imageUrl,
+          order: image.order,
+        });
+        return acc;
+      }, {});
+
+      // 4. 상품 리스트에 이미지 데이터를 추가
+      const contentsWithImages = rows.map((content) => {
+        return {
+          ...content.dataValues, // 상품 데이터
+          images: imagesByContentId[content.dataValues.contentsId] || [], // 해당 상품의 이미지가 있으면 추가
+        };
+      });
+      console.log(
+        '🚀 ~ contentsWithImages ~ contentsWithImages:',
+        contentsWithImages
+      );
+
+      return contentsWithImages;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   // 유저별 상품 리스트 가져오기
   async listUserGet(params) {
     // eslint-disable-next-line no-useless-catch
@@ -169,6 +217,54 @@ const ContentsDao = {
     }
   },
 
+  // 유저별 상품 리스트 가져오기 무한스크롤
+  async listUserGetScroll(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const { rows, count } = await Contents.findAndCountAll({
+        where: { userId: params.userId },
+        offset: params.offset,
+        limit: params.limit,
+        order: [['contentsId', 'ASC']], // contentsId 기준 오름차순 정렬
+      });
+
+      // 2. 모든 상품의 이미지 조회
+      const contentsIds = rows.map((content) => content.dataValues.contentsId);
+      const images = await ContentsImg.findAll({
+        where: { contentsId: contentsIds }, // 해당하는 상품들의 이미지 조회
+        attributes: ['contentsId', 'imageUrl', 'order'], // 필요한 필드만 선택
+      });
+
+      // 3. 이미지 데이터를 contentsId를 기준으로 매핑
+      const imagesByContentId = images.reduce((acc, image) => {
+        if (!acc[image.contentsId]) {
+          acc[image.contentsId] = [];
+        }
+        acc[image.contentsId].push({
+          imageUrl: image.imageUrl,
+          order: image.order,
+        });
+        return acc;
+      }, {});
+
+      // 4. 상품 리스트에 이미지 데이터를 추가
+      const contentsWithImages = rows.map((content) => {
+        return {
+          ...content.dataValues, // 상품 데이터
+          images: imagesByContentId[content.dataValues.contentsId] || [], // 해당 상품의 이미지가 있으면 추가
+        };
+      });
+      console.log(
+        '🚀 ~ contentsWithImages ~ contentsWithImages:',
+        contentsWithImages
+      );
+
+      return contentsWithImages;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   // 번호로 상품 리스트 가져오기
   async listContentsGet(params) {
     // eslint-disable-next-line no-useless-catch
@@ -203,6 +299,54 @@ const ContentsDao = {
           images: imagesByContentId[content.contentsId] || [], // 해당 상품에 이미지가 있으면 추가, 없으면 빈 배열
         };
       });
+
+      return contentsWithImages;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  // 번호로 상품 리스트 가져오기 무한스크롤
+  async listContentsGetScroll(params) {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const { rows, count } = await Contents.findAndCountAll({
+        where: { contentsId: params.contentsId },
+        offset: params.offset,
+        limit: params.limit,
+        order: [['contentsId', 'ASC']], // contentsId 기준 오름차순 정렬
+      });
+
+      // 2. 모든 상품의 이미지 조회
+      const contentsIds = rows.map((content) => content.dataValues.contentsId);
+      const images = await ContentsImg.findAll({
+        where: { contentsId: contentsIds }, // 해당하는 상품들의 이미지 조회
+        attributes: ['contentsId', 'imageUrl', 'order'], // 필요한 필드만 선택
+      });
+
+      // 3. 이미지 데이터를 contentsId를 기준으로 매핑
+      const imagesByContentId = images.reduce((acc, image) => {
+        if (!acc[image.contentsId]) {
+          acc[image.contentsId] = [];
+        }
+        acc[image.contentsId].push({
+          imageUrl: image.imageUrl,
+          order: image.order,
+        });
+        return acc;
+      }, {});
+
+      // 4. 상품 리스트에 이미지 데이터를 추가
+      const contentsWithImages = rows.map((content) => {
+        return {
+          ...content.dataValues, // 상품 데이터
+          images: imagesByContentId[content.dataValues.contentsId] || [], // 해당 상품의 이미지가 있으면 추가
+        };
+      });
+      console.log(
+        '🚀 ~ contentsWithImages ~ contentsWithImages:',
+        contentsWithImages
+      );
 
       return contentsWithImages;
     } catch (err) {

@@ -1,36 +1,9 @@
 import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import imageUploader from './imageUploader.js';
+import { imageUploader } from './imageUploader.js'; // 중괄호를 사용해서 가져오기
 const router = express.Router();
 import contentsService from '../services/contentsService.js';
 
-// Multer 설정
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = path.resolve('D:/image'); // 파일을 저장할 절대 경로
-
-    // 폴더가 존재하는지 확인, 없으면 생성
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true }); // 폴더가 없으면 생성 (하위 디렉토리도 포함하여 생성 가능)
-    }
-
-    cb(null, uploadPath); // 업로드 경로 설정
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({ storage: storage });
-
 //상품 등록
-//router.post('/register', upload.array('images', 5), async (req, res, next) => {
 router.post(
   '/register',
   imageUploader.array('images', 5),
@@ -44,15 +17,6 @@ router.post(
         contentsType: req.body.contentsType,
         purpose: req.body.purpose,
       };
-
-      // const images = req.files.map((file) => {
-      //   // Windows 형식으로 경로 변환
-      //   const windowsPath = file.path.replace(/\//g, '\\');
-      //   return {
-      //     filename: file.filename,
-      //     path: windowsPath, // Windows 경로 형식으로 저장
-      //   };
-      // });
 
       // req.files에서 S3의 location 필드를 사용하여 이미지 경로 처리
       const images = req.files.map((file) => {
@@ -132,39 +96,26 @@ router.get('/listAll', async (req, res, next) => {
   }
 });
 
-// //유저별 상품 리스트 가져오기
-// router.post('/listUser', async (req, res, next) => {
-//   try {
-//     const params = {
-//       userId: req.body.userId,
-//     };
-//     console.log('🚀 ~ router.post ~ params:', params);
+//상품 리스트 불러오기_무한스크롤
+router.get('/listAllScroll', async (req, res, next) => {
+  try {
+    console.log('상품_listAllScroll');
+    const page = parseInt(req.query.page) || 1; // 요청받은 페이지 번호, 기본값 1
+    const limit = parseInt(req.query.limit) || 10; // 한 페이지에 보여줄 데이터 수, 기본값 10
+    const offset = (page - 1) * limit; // 시작점 계산
 
-//     const result = await contentsService.listUserGet(params);
-//     console.log('🚀 ~ router.post ~ params:', params);
+    const params = {
+      page: page,
+      limit: limit,
+      offset: offset,
+    };
+    const result = await contentsService.listGetScroll(params);
 
-//     res.status(200).json({ state: 'success', result });
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
-// //번호별 상품 리스트 가져오기
-// router.post('/listContents', async (req, res, next) => {
-//   try {
-//     const params = {
-//       contentsId: req.body.contentsId,
-//     };
-//     console.log('🚀 ~ router.post ~ params:', params);
-
-//     const result = await contentsService.listContentsGet(params);
-//     console.log('🚀 ~ router.post ~ params:', params);
-
-//     res.status(200).json({ state: 'success', result });
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // 유저별 상품 리스트 가져오기 (GET 방식)
 router.get('/listUser', async (req, res, next) => {
@@ -183,6 +134,31 @@ router.get('/listUser', async (req, res, next) => {
   }
 });
 
+// 유저별 상품 리스트 불러오기_무한스크롤
+router.get('/listUserScroll', async (req, res, next) => {
+  try {
+    console.log('상품_listUser_Scroll');
+    const page = parseInt(req.query.page) || 1; // 요청받은 페이지 번호, 기본값 1
+    const limit = parseInt(req.query.limit) || 10; // 한 페이지에 보여줄 데이터 수, 기본값 10
+    const offset = (page - 1) * limit; // 시작점 계산
+
+    const params = {
+      userId: req.query.userId, // 쿼리 파라미터로 전달
+      page: page,
+      limit: limit,
+      offset: offset,
+    };
+    console.log('🚀 ~ router.get ~ params:', params);
+
+    const result = await contentsService.listUserGetScroll(params);
+    console.log('🚀 ~ router.get ~ result:', result);
+
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // 번호별 상품 리스트 가져오기 (GET 방식)
 router.get('/listContents', async (req, res, next) => {
   try {
@@ -192,6 +168,31 @@ router.get('/listContents', async (req, res, next) => {
     console.log('🚀 ~ router.get ~ params:', params);
 
     const result = await contentsService.listContentsGet(params);
+    console.log('🚀 ~ router.get ~ result:', result);
+
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 번호별 상품 리스트 불러오기_무한스크롤
+router.get('/listContentsScroll', async (req, res, next) => {
+  try {
+    console.log('상품_listContents_Scroll');
+    const page = parseInt(req.query.page) || 1; // 요청받은 페이지 번호, 기본값 1
+    const limit = parseInt(req.query.limit) || 10; // 한 페이지에 보여줄 데이터 수, 기본값 10
+    const offset = (page - 1) * limit; // 시작점 계산
+
+    const params = {
+      contentsId: req.query.contentsId, // 쿼리 파라미터로 전달
+      page: page,
+      limit: limit,
+      offset: offset,
+    };
+    console.log('🚀 ~ router.get ~ params:', params);
+
+    const result = await contentsService.listContentsGetScroll(params);
     console.log('🚀 ~ router.get ~ result:', result);
 
     res.status(200).json({ state: 'success', result });
