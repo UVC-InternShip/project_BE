@@ -6,6 +6,7 @@ import db from './models/index.js';
 import indexRouter from './routes/index.js';
 import { createServer } from 'http';
 import { initializedSocketIO } from './socket/index.js';
+import redis from './config/redis.js';
 
 const app = express();
 dotenv.config();
@@ -24,6 +25,9 @@ app.use(express.urlencoded({ extended: true }));
 
 const startServer = async () => {
   try {
+    await redis.ping();
+    logger.info('Redis Connect Success');
+
     await db.sequelize.authenticate();
     logger.info('DB Connect Success');
 
@@ -44,6 +48,10 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+redis.on('error', (error) => {
+  logger.error('Redis connection error:', error);
+});
 
 startServer();
 

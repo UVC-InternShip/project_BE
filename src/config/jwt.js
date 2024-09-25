@@ -15,11 +15,42 @@ export function generateToken(payload) {
   });
 }
 
-export function verification(token) {
+export function generateRefreshToken(payload) {
+  return jwt.sign(payload, jwtConfig.secret, {
+    expiresIn: jwtConfig.refreshExpiresIn,
+  });
+}
+
+export function verifyToken(token) {
   try {
     return jwt.verify(token, jwtConfig.secret);
   } catch (error) {
     throw new Error('Invalid token', error);
   }
 }
+
+export function verifyAndRefreshTokens(accessToken, refreshToken) {
+  try {
+    //Access Token이 유효한 경우
+    const decoded = jwt.verify(accessToken, jwtConfig.secret);
+    return { accessToken, refreshToken, decoded };
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      // Access Token이 만료된 경우, Refresh Token을 사용하여 새로운 Access Token 발급
+      try {
+        const refreshDecoded = jwt.verify(refreshToken, jwtConfig.secret);
+        const newAccessToken = generateToken({ id: refreshDecoded.id });
+        return {
+          accessToken: newAccessToken,
+          refreshToken,
+          decoded: refreshDecoded,
+        };
+      } catch (refreshError) {
+        throw new Error('Refresh token expired');
+      }
+    }
+    throw error;
+  }
+}
+
 export default jwtConfig;
