@@ -5,6 +5,7 @@ import contentRouter from './contents.js';
 import changerRouter from './exchangeProposal.js';
 import smsRouter from './sms.js';
 import chatRouter from './chat.js';
+import tokenRouter from './token.js';
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use('/contents', contentRouter);
 router.use('/offer', changerRouter);
 router.use('/sms', smsRouter);
 router.use('/chat', chatRouter);
+router.use('/token', tokenRouter);
 
 export default router;

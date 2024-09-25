@@ -32,7 +32,8 @@ router.post('/verify-code', async (req, res) => {
       res.status(200).json({
         message: '기존의 회원 정보로 로그인 되었습니다.',
         user: result.user,
-        token: result.token,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
         contents: result.contentsList,
         success: true,
       });

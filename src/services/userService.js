@@ -1,19 +1,24 @@
 import userDao from '../dao/userDao.js';
 import logger from '../../lib/logger.js';
-import { generateToken } from '../config/jwt.js';
 import contentsDao from '../dao/contentsDao.js';
+import { generateRefreshToken, generateToken } from '../config/jwt.js';
 
 const userService = {
   async createUser(params) {
     try {
       const result = await userDao.insert(params);
+      console.log(result.newUser.userId);
       if (result.success) {
-        const token = generateToken({ userId: result.newUser.userId });
+        const accessToken = generateToken({ userId: result.newUser.userId });
+        const refreshToken = generateRefreshToken({
+          userId: result.newUser.userId,
+        });
         const contentsList = contentsDao.listGet();
         return {
           success: true,
           user: result.newUser,
-          token,
+          accessToken,
+          refreshToken,
           contentsList,
         };
       }

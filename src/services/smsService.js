@@ -5,7 +5,7 @@ import logger from '../../lib/logger.js';
 import dotenv from 'dotenv';
 import userDao from '../dao/userDao.js';
 import contentsDao from '../dao/contentsDao.js';
-import { generateToken } from '../config/jwt.js';
+import { generateRefreshToken, generateToken } from '../config/jwt.js';
 
 dotenv.config();
 
@@ -50,13 +50,15 @@ export const verifyCode = async (phoneNumber, code) => {
   const user = await userDao.getUserPhoneNumber(phoneNumber);
   if (user) {
     // 기존 회원일 경우 토큰 생성
-    const token = generateToken({ userId: user.userId });
+    const accessToken = generateToken({ userId: user.userId });
+    const refreshToken = generateRefreshToken({ userId: user.userId });
     const contentsList = contentsDao.listGet();
     await redis.del(`sms:${phoneNumber}`);
     return {
       isUser: true,
       user,
-      token,
+      accessToken,
+      refreshToken,
       contentsList,
     };
   } else {

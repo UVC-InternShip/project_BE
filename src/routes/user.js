@@ -11,13 +11,13 @@ router.post('/register', async (req, res) => {
       phoneNumber: req.body.phoneNumber,
     };
     const result = await userService.createUser(params);
-    console.log(result);
     if (result.success) {
       res.status(200).json({
         message: '회원가입 성공 및 로그인 되었습니다.',
         user: result.newUser,
         contents: result.contentsList,
-        token: result.token,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       });
     } else {
       res.status(400).json({ message: '회원가입 실패', error: result.error });
