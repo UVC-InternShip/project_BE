@@ -69,9 +69,9 @@ router.put('/status', async (req, res, next) => {
 });
 
 //상품 삭제
-router.delete('/delete/:id', async (req, res, next) => {
+router.delete('/delete/:contentsId', async (req, res, next) => {
   try {
-    const contentsId = req.params.id;
+    const contentsId = req.params.contentsId;
     console.log('🚀 ~ router.delete ~ contentsId:', contentsId);
 
     //console.log('🚀 ~ router.delete ~ params:', params);
@@ -176,36 +176,11 @@ router.get('/listContents', async (req, res, next) => {
   }
 });
 
-// 번호별 상품 리스트 불러오기_무한스크롤
-router.get('/listContentsScroll', async (req, res, next) => {
-  try {
-    console.log('상품_listContents_Scroll');
-    const page = parseInt(req.query.page) || 1; // 요청받은 페이지 번호, 기본값 1
-    const limit = parseInt(req.query.limit) || 10; // 한 페이지에 보여줄 데이터 수, 기본값 10
-    const offset = (page - 1) * limit; // 시작점 계산
-
-    const params = {
-      contentsId: req.query.contentsId, // 쿼리 파라미터로 전달
-      page: page,
-      limit: limit,
-      offset: offset,
-    };
-    console.log('🚀 ~ router.get ~ params:', params);
-
-    const result = await contentsService.listContentsGetScroll(params);
-    console.log('🚀 ~ router.get ~ result:', result);
-
-    res.status(200).json({ state: 'success', result });
-  } catch (error) {
-    next(error);
-  }
-});
-
 //상품 검색
 router.post('/search', async (req, res, next) => {
   try {
     const searchParams = {
-      title: req.body.searchName,
+      title: req.body.title,
       purpose: req.body.purpose,
     };
 
@@ -229,7 +204,7 @@ router.get('/category', async (req, res, next) => {
   }
 });
 
-//카테고리 추가
+//카테고리 추가 (관리자)
 router.post('/category', async (req, res, next) => {
   try {
     const params = {
