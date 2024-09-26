@@ -4,7 +4,13 @@ import logger from '../../lib/logger.js';
 import jwt from 'jsonwebtoken';
 
 export const initializedSocketIO = (server) => {
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: {
+      origin: '*', // 필요한 도메인으로 변경 가능
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Authorization'],
+    },
+  });
   const userSockets = new Map(); // 사용자 ID와 소켓 ID를 매핑
 
   // JWT 검증 미들웨어
