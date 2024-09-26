@@ -173,6 +173,24 @@ const contentsService = {
     });
   },
 
+  //상품검색
+  async search(params) {
+    console.log('🚀 ~ search ~ params:', params);
+    let result = null;
+
+    try {
+      result = await contentsDao.search(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(result);
+    });
+  },
+
   //카테고리 가져오기
   async categoryGet() {
     let category = null;

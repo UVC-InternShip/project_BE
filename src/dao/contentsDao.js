@@ -324,17 +324,21 @@ const ContentsDao = {
           { description: { [Op.like]: `%${searchParams.title}%` } },
         ];
         console.log('🚀 ~ search ~ whereClause1:', setQuery);
+        console.log('🚀 ~ SQL Query:', JSON.stringify(setQuery, null, 2));
       }
 
-      // type이 있는 경우 Op.eq 조건 추가
-      if (searchParams.purpose) {
-        console.log('Type Value:', searchParams.purpose); // type 값 확인
-        setQuery.where.purpose = { [Op.eq]: searchParams.purpose }; // 정확히 일치하는 type을 찾기 위해 eq 사용
+      if (searchParams.purpose == '교환' || searchParams.purpose == '나눔') {
+        // type이 있는 경우 Op.eq 조건 추가
+        if (searchParams.purpose) {
+          console.log('Type Value:', searchParams.purpose); // type 값 확인
+          setQuery.where.purpose = { [Op.eq]: searchParams.purpose }; // 정확히 일치하는 type을 찾기 위해 eq 사용
+        }
+        console.log('🚀 ~ search ~ whereClause2:', setQuery);
       }
-      console.log('🚀 ~ search ~ whereClause2:', setQuery);
+
       // 이후의 쿼리 실행
       const results = await Contents.findAll({
-        setQuery, // 조건을 설정하는 부분 (필요한 경우 설정)
+        where: setQuery.where, // 조건을 설정하는 부분 (필요한 경우 설정)
         order: [['contentsId', 'ASC']], // contentsId 기준 오름차순 정렬
       });
 
@@ -364,6 +368,10 @@ const ContentsDao = {
           images: imagesByContentId[content.contentsId] || [], // 해당 상품에 이미지가 있으면 추가, 없으면 빈 배열
         };
       });
+      console.log(
+        '🚀 ~ contentsWithImages ~ contentsWithImages:',
+        contentsWithImages
+      );
       return contentsWithImages;
     } catch (error) {
       console.error(error);
