@@ -1,4 +1,6 @@
 import chatDao from '../dao/chatDao.js';
+import userDao from '../dao/userDao.js';
+import contentsDao from '../dao/contentsDao.js';
 import logger from '../../lib/logger.js';
 
 const chatService = {
@@ -31,8 +33,48 @@ const chatService = {
   },
 
   async getAllChatRooms(params) {
-    const result = await chatDao.getChatRooms(params);
-    return result;
+    const chatRooms = await chatDao.getChatRooms(params);
+
+    const result = await Promise.all(
+      chatRooms.map(async (room) => {
+        const memberPromises = room.member.map((memberId) =>
+          userDao.getUserInfoById({ userId: memberId })
+        );
+
+        const [members, item] = await Promise.all([
+          Promise.all(memberPromises),
+          contentsDao.getItemById({ itemId: room.itemId }),
+        ]);
+
+        return {
+          id: room._id.toString(),
+          members: members
+            .map((member) => {
+              if (member && member.dataValues) {
+                return {
+                  id: member.dataValues.userId,
+                  name: member.dataValues.name,
+                };
+              }
+              return null;
+            })
+            .filter(Boolean),
+          item:
+            item && item.dataValues
+              ? {
+                  id: item.dataValues.contentsId,
+                  title: item.dataValues.title,
+                  type: item.dataValues.contentsType,
+                  purpose: item.dataValues.purpose,
+                  status: item.dataValues.status,
+                }
+              : null,
+          date: room.date,
+        };
+      })
+    );
+
+    return result.filter((room) => room.members.length > 0 && room.item); // 유효한 데이터만 반환
   },
 
   async getChatDetail(params) {

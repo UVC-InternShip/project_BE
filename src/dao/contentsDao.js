@@ -393,7 +393,21 @@ const ContentsDao = {
       throw err;
     }
   },
-
+  // 상품 ID를 통해 하나의 상품 조회
+  async getItemById(params) {
+    const result = await Contents.findOne({
+      where: { contentsId: params.itemId },
+      attributes: [
+        'contentsId',
+        'title',
+        'contentsType',
+        'purpose',
+        'status',
+        'userId',
+      ],
+    });
+    return result;
+  },
   // 완전 삭제
   async deleteForce(params) {
     // eslint-disable-next-line no-useless-catch

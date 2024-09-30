@@ -54,6 +54,24 @@ const userDao = {
     }
   },
 
+  // 채팅방에 속한 회원의 ID로 정보 리턴
+  async getUserInfoById(params) {
+    try {
+      const result = await User.findOne({
+        where: { userId: params.userId },
+        attributes: ['userId', 'phoneNumber', 'name', 'reputationScore'],
+      });
+      return result;
+    } catch (error) {
+      logger.error(
+        'getUserInfoById error on findOne:',
+        error.message,
+        error.stack
+      );
+      throw error;
+    }
+  },
+
   // 모든 회원 리스트 리턴 ( role : 'user'인 회원만 정렬을 통해.. )
   async getAllUsers() {
     try {

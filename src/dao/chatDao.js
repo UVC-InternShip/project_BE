@@ -50,13 +50,11 @@ const chatDao = {
   },
 
   async getDetail(params) {
-    console.log(params);
     try {
       const db = getDb();
       const result = await db.collection('chatroom').findOne({
         _id: new ObjectId(params),
       });
-      console.log('result', result);
       const result2 = await db
         .collection('chats')
         .find({

@@ -4,17 +4,17 @@ import chatService from '../services/chatService.js';
 
 const router = express.Router();
 
-// 채팅방 생성 새로운 채팅방에서 채팅 전송 시 socket과 http 요청을 동시에 요청
-router.post('/create', async (req, res) => {
+// (나눔) 채팅방 생성 새로운 채팅방에서 채팅 전송 시 socket과 http 요청을 동시에 요청
+router.post('/share/create', async (req, res) => {
   try {
     const params = {
       userId: req.body.userId,
       writerId: req.body.writerId,
       itemId: req.body.itemId,
     };
-    // 이미 유저끼리 같은 상품으로 등록된 채팅방이 존재한다면, 기존의 채팅방 정보를 리턴
     const chatId = await chatService.createChatRoom(params);
     if (chatId.message === 'already exist') {
+      // 이미 유저끼리 같은 상품으로 등록된 채팅방이 존재한다면, 기존의 채팅방 정보를 리턴
       res.status(200).json(chatId);
     } else {
       res.status(200).json({ message: 'success', chatRoomId: chatId });
