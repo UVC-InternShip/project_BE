@@ -9,9 +9,24 @@ class Point extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true,
         },
-        pointEarned: {
+        userId: {
           type: Sequelize.INTEGER,
           allowNull: false,
+        },
+        weeklyPoints: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
+        totalPoints: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
+        lastUpdatedWeek: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: new Date().getWeek(),
         },
       },
       {
