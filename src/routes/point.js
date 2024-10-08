@@ -19,6 +19,22 @@ router.post('/add', async (req, res) => {
   }
 });
 
+// 주간 포인트 차감 API
+router.post('/deduct', async (req, res) => {
+  const params = {
+    userId: req.body.userId,
+    pointsToDeduct: req.body.pointsToDeduct,
+  };
+  console.log('🚀 ~ router.post ~ req.body:', params);
+
+  try {
+    const result = await pointService.deductPoints(params);
+    res.status(200).json({ state: 'success', result });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
 // 주간 포인트 리셋 API
 router.post('/reset', async (req, res) => {
   try {

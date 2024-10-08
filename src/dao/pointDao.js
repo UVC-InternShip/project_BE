@@ -36,6 +36,22 @@ const PointDao = {
     return await point.save();
   },
 
+  // 포인트 차감 (주간 포인트는 차감하지 않음)
+  async deductPoints(params) {
+    const point = await this.findByUserId(params.userId);
+    const pointsToDeductInt = Number(params.pointsToDeduct); // 또는 parseInt(pointsToDeduct, 10)
+
+    // 포인트가 충분한지 확인
+    if (point.totalPoints < pointsToDeductInt) {
+      throw new Error('차감할 포인트가 부족합니다.');
+    }
+
+    // 누적 포인트에서만 차감 (주간 포인트는 유지)
+    point.totalPoints -= pointsToDeductInt;
+
+    return await point.save();
+  },
+
   // 주간 및 누적 랭킹 조회
   async getTopRankings() {
     const weeklyRanking = await Point.findAll({

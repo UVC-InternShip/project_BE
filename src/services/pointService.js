@@ -18,6 +18,22 @@ const pointService = {
     });
   },
 
+  async deductPoints(params) {
+    let deducted = null;
+
+    try {
+      deducted = await pointDao.deductPoints(params);
+    } catch (err) {
+      return new Promise((resolve, reject) => {
+        reject(err);
+      });
+    }
+
+    return new Promise((resolve) => {
+      resolve(deducted);
+    });
+  },
+
   // 주간 포인트 리셋 서비스
   async resetWeeklyPoints() {
     return await pointDao.resetWeeklyPoints();
