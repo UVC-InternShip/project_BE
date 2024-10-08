@@ -28,9 +28,13 @@ router.post('/share/create', async (req, res) => {
 // 채팅방 목록 불러오기
 router.get('/list', async (req, res) => {
   try {
-    const params = {
-      memberId: req.body.userId,
-    };
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: 'userID is required ' });
+    }
+
+    const params = { memberId: userId };
     const chatRooms = await chatService.getAllChatRooms(params);
     res.status(200).json({ message: 'success', chatRooms: chatRooms });
   } catch (error) {
