@@ -4,18 +4,36 @@ import contentsDao from '../dao/contentsDao.js';
 import logger from '../../lib/logger.js';
 
 const chatService = {
-  async createChatRoom(params) {
-    const checkroom = await chatDao.checkExistRoom(params);
+  async createShareChatRoom(params) {
+    const checkroom = await chatDao.checkExistShareRoom(params);
     if (checkroom) {
       // 기존의 채팅방이 있을경우 리턴
+      console.log(checkroom);
+      // 여기서 이제 넘겨줄 데이터 변환시켜서 넘겨줘야함 ㅇㅇ
       return { message: 'already exist', checkroom };
     } else {
       // 기존의 채팅방이 없을경우 새로운 채팅방 생성
       try {
-        const createChatRoom = await chatDao.createChatRoom(params);
+        const createChatRoom = await chatDao.createShareChatRoom(params);
         return createChatRoom;
       } catch (error) {
         logger.error('createChatRoom Error:', error);
+        throw error;
+      }
+    }
+  },
+
+  async createExchangeChatRoom(params) {
+    const checkExchangeRoom = await chatDao.checkExistExchangeRoom(params);
+    if (checkExchangeRoom) {
+      return { message: 'already exist', checkExchangeRoom };
+    } else {
+      try {
+        const createExchangeChatRoom =
+          await chatDao.createExchangeChatRoom(params);
+        return createExchangeChatRoom;
+      } catch (error) {
+        logger.error('createExchangeChatRoom Error:', error);
         throw error;
       }
     }

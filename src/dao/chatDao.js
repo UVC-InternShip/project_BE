@@ -3,7 +3,7 @@ import logger from '../../lib/logger.js';
 import { ObjectId } from 'mongodb';
 
 const chatDao = {
-  async createChatRoom(params) {
+  async createShareChatRoom(params) {
     try {
       const db = getDb();
       const result = await db.collection('chatroom').insertOne({
@@ -13,7 +13,28 @@ const chatDao = {
       });
       return result;
     } catch (error) {
-      logger.error('Error in createChatRoom:', error);
+      logger.error('Error in createShareChatRoom:', error);
+      throw error;
+    }
+  },
+
+  async createExchangeChatRoom(params) {
+    try {
+      const db = getDb();
+      const result = await db.collection('chatroom').insertOne({
+        member: {
+          offerId: params.offerId,
+          writerId: params.writerId,
+        },
+        itemId: {
+          offerItemId: params.offerItemId,
+          writerItemId: params.writerItemId,
+        },
+        data: new Date(),
+      });
+      return result;
+    } catch (error) {
+      logger.error('Error in createExchangeChatRoom:', error);
       throw error;
     }
   },
@@ -35,7 +56,7 @@ const chatDao = {
     }
   },
 
-  async checkExistRoom(params) {
+  async checkExistShareRoom(params) {
     try {
       const db = getDb();
       const result = await db.collection('chatroom').findOne({
@@ -44,7 +65,28 @@ const chatDao = {
       });
       return result;
     } catch (error) {
-      logger.error('Error in checkExistRoom:', error);
+      logger.error('Error in checkExistShareRoom:', error);
+      throw error;
+    }
+  },
+
+  async checkExistExchangeRoom(params) {
+    try {
+      const db = getDb();
+      const result = await db.collection('chatroom').findOne({
+        member: {
+          offerId: params.offerId,
+          writerId: params.writerId,
+        },
+        itemId: {
+          offerItemId: params.offerItemId,
+          writerItemId: params.writerItemId,
+        },
+      });
+      console.log(result);
+      return result;
+    } catch (error) {
+      logger.error('Error in checkExistExchangeRoom:', error);
       throw error;
     }
   },

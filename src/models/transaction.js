@@ -9,6 +9,10 @@ class Transactions extends Sequelize.Model {
           primaryKey: true,
           autoIncrement: true,
         },
+        purpose: {
+          type: Sequelize.ENUM('교환', '나눔'),
+          allowNull: false,
+        },
       },
       {
         sequelize,

@@ -59,7 +59,6 @@ router.put('/update', async (req, res, next) => {
 router.put('/status', async (req, res, next) => {
   try {
     const updateData = req.body;
-    console.log('🚀 ~ router.put ~ params:', updateData);
 
     const result = await contentsService.statusChange(updateData);
     res.status(200).json({ state: 'success', result });

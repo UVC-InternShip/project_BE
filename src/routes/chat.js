@@ -8,11 +8,33 @@ const router = express.Router();
 router.post('/share/create', async (req, res) => {
   try {
     const params = {
-      userId: req.body.userId,
-      writerId: req.body.writerId,
-      itemId: req.body.itemId,
+      userId: req.body.userId, // 나눔을 받기위해 채팅을 전송하는 유저 ID
+      writerId: req.body.writerId, // 나눔글을 등록한 유저 ID
+      itemId: req.body.itemId, // 나눔글 ID
     };
-    const chatId = await chatService.createChatRoom(params);
+    const chatId = await chatService.createShareChatRoom(params);
+    if (chatId.message === 'already exist') {
+      // 이미 유저끼리 같은 상품으로 등록된 채팅방이 존재한다면, 기존의 채팅방 정보를 리턴
+      res.status(200).json(chatId);
+    } else {
+      res.status(200).json({ message: 'success', chatRoomId: chatId });
+    }
+  } catch (error) {
+    logger.error('chatRoute.createChatRoom Error:', error);
+    res.status(500).json({ message: 'create ChatRoom Error' });
+  }
+});
+
+// (교환) 채팅방 생성
+router.post('/exchange/create', async (req, res) => {
+  try {
+    const params = {
+      offerId: req.body.offerId, // 교환 제안자
+      writerId: req.body.writerId, // 글쓴이
+      offerItemId: req.body.offerItemId, // 제안한 사람이 등록한 아이템의 아이디
+      writerItemId: req.body.writerItemId, // 글쓴이의 상품 아이디
+    };
+    const chatId = await chatService.createExchangeChatRoom(params);
     if (chatId.message === 'already exist') {
       // 이미 유저끼리 같은 상품으로 등록된 채팅방이 존재한다면, 기존의 채팅방 정보를 리턴
       res.status(200).json(chatId);

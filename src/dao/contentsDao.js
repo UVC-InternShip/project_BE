@@ -67,7 +67,6 @@ const ContentsDao = {
       const updatedContent = await Contents.findOne({
         where: { contentsId: params.contentsId },
       });
-      console.log('🚀 ~ update ~ updatedContent:', updatedContent);
       return updatedContent;
       //return updated;
     } catch (err) {

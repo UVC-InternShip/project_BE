@@ -1,4 +1,5 @@
 import contentsDao from '../dao/contentsDao.js';
+import transaction from '../dao/transactionDao.js';
 import { deleteImagesByContentId } from '../routes/imageUploader.js';
 
 const contentsService = {
@@ -53,7 +54,11 @@ const contentsService = {
     let result = null;
 
     try {
-      result = await contentsDao.updateStatus(params);
+      const result = await contentsDao.updateStatus(params);
+      if (result.status == '완료') {
+        const insert = await transaction.insert(result);
+        console.log(insert);
+      }
     } catch (err) {
       return new Promise((resolve, reject) => {
         reject(err);
