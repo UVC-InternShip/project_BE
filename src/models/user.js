@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-
+import Point from './point.js';
 class User extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
@@ -58,6 +58,15 @@ class User extends Sequelize.Model {
         underscored: true,
         timestamps: true,
         paranoid: true,
+        hooks: {
+          afterCreate: async (user, options) => {
+            // 유저 생성 후 포인트 데이터 자동 생성
+            await Point.create({
+              userId: user.userId,
+              points: 0, // 초기 포인트 값 설정
+            });
+          },
+        },
       }
     );
   }
