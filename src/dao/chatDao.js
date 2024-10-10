@@ -7,8 +7,8 @@ const chatDao = {
     try {
       const db = getDb();
       const result = await db.collection('chatroom').insertOne({
-        member: [params.writerId, params.userId],
-        itemId: params.itemId,
+        member: [params.sharerId, params.requesterId],
+        itemId: params.contentId,
         date: new Date(),
       });
       return result;
@@ -20,15 +20,16 @@ const chatDao = {
 
   async createExchangeChatRoom(params) {
     try {
+      console.log('들어옴 만들기', params);
       const db = getDb();
       const result = await db.collection('chatroom').insertOne({
         member: {
-          offerId: params.offerId,
+          proposalId: params.proposalId,
           writerId: params.writerId,
         },
         itemId: {
-          offerItemId: params.offerItemId,
-          writerItemId: params.writerItemId,
+          proposeContentId: params.proposeContentId,
+          writerContentId: params.writerContentId,
         },
         data: new Date(),
       });
@@ -60,8 +61,8 @@ const chatDao = {
     try {
       const db = getDb();
       const result = await db.collection('chatroom').findOne({
-        member: [params.writerId, params.userId],
-        itemId: params.itemId,
+        member: [params.sharerId, params.requesterId],
+        itemId: params.contentId,
       });
       return result;
     } catch (error) {
@@ -75,12 +76,12 @@ const chatDao = {
       const db = getDb();
       const result = await db.collection('chatroom').findOne({
         member: {
-          offerId: params.offerId,
+          proposalId: params.proposalId,
           writerId: params.writerId,
         },
         itemId: {
-          offerItemId: params.offerItemId,
-          writerItemId: params.writerItemId,
+          proposeContentId: params.proposeContentId,
+          writerContentId: params.writerContentId,
         },
       });
       console.log(result);
