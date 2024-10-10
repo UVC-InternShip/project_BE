@@ -1,4 +1,6 @@
+import logger from '../../lib/logger.js';
 import contentsDao from '../dao/contentsDao.js';
+import transaction from '../dao/transactionDao.js';
 import { deleteImagesByContentId } from '../routes/imageUploader.js';
 
 const contentsService = {
@@ -50,19 +52,32 @@ const contentsService = {
 
   //상품 판매 상태 변경
   async statusChange(params) {
-    let result = null;
-
     try {
-      result = await contentsDao.updateStatus(params);
+      const result = await contentsDao.updateStatus(params);
+      return result;
     } catch (err) {
-      return new Promise((resolve, reject) => {
-        reject(err);
-      });
+      logger.error('statusChange error:', err);
+      throw err;
     }
+  },
 
-    return new Promise((resolve) => {
-      resolve(result);
-    });
+  // 상품 상태 완료 시
+  async statusDone(params) {
+    try {
+      const updateParams = {
+        contentsId: params.contentsId,
+        status: params.status,
+      };
+      const updateStatus = await contentsDao.updateStatus(updateParams);
+      if (updateStatus.status === '완료') {
+        const insertTransactions = await transaction.insert(params);
+        console.log(insertTransactions);
+        return insertTransactions;
+      }
+    } catch (error) {
+      logger.error('statusDone service error:', error);
+      throw error;
+    }
   },
 
   //상품 삭제

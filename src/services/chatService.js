@@ -4,20 +4,60 @@ import contentsDao from '../dao/contentsDao.js';
 import logger from '../../lib/logger.js';
 
 const chatService = {
-  async createChatRoom(params) {
-    const checkroom = await chatDao.checkExistRoom(params);
-    if (checkroom) {
-      // 기존의 채팅방이 있을경우 리턴
-      return { message: 'already exist', checkroom };
-    } else {
-      // 기존의 채팅방이 없을경우 새로운 채팅방 생성
-      try {
-        const createChatRoom = await chatDao.createChatRoom(params);
-        return createChatRoom;
-      } catch (error) {
-        logger.error('createChatRoom Error:', error);
-        throw error;
+  async createShareChatRoom(params) {
+    try {
+      const checkroom = await chatDao.checkExistShareRoom(params);
+
+      if (checkroom) {
+        console.log(checkroom);
+        const [sharer, requester, content] = await Promise.all([
+          userDao.getUserInfoById({ userId: checkroom.member[0] }),
+          userDao.getUserInfoById({ userId: checkroom.member[1] }),
+          contentsDao.getItemById({ itemId: checkroom.itemId }),
+        ]);
+        return {
+          message: 'already exist',
+          result: {
+            user: [sharer, requester],
+            contents: content,
+          },
+        };
       }
+
+      return await chatDao.createShareChatRoom(params);
+    } catch (error) {
+      logger.error('createShareChatRoom Error:', error);
+      throw error;
+    }
+  },
+
+  async createExchangeChatRoom(params) {
+    try {
+      const checkroom = await chatDao.checkExistExchangeRoom(params);
+      if (checkroom) {
+        const [proposal, writer, proposeContentId, writerContentId] =
+          await Promise.all([
+            userDao.getUserInfoById({ userId: checkroom.member.proposalId }),
+            userDao.getUserInfoById({ userId: checkroom.member.writerId }),
+            contentsDao.getItemById({
+              itemId: checkroom.itemId.proposeContentId,
+            }),
+            contentsDao.getItemById({
+              itemId: checkroom.itemId.writerContentId,
+            }),
+          ]);
+        return {
+          message: 'already exist',
+          result: {
+            user: [proposal, writer],
+            contents: [proposeContentId, writerContentId],
+          },
+        };
+      }
+      return await chatDao.createExchangeChatRoom(params);
+    } catch (error) {
+      logger.error('createExchangeChatRoom Error:', error);
+      throw error;
     }
   },
 

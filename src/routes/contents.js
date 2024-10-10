@@ -1,5 +1,6 @@
 import express from 'express';
 import { imageUploader } from './imageUploader.js'; // 중괄호를 사용해서 가져오기
+import logger from '../../lib/logger.js';
 const router = express.Router();
 import contentsService from '../services/contentsService.js';
 
@@ -59,12 +60,29 @@ router.put('/update', async (req, res, next) => {
 router.put('/status', async (req, res, next) => {
   try {
     const updateData = req.body;
-    console.log('🚀 ~ router.put ~ params:', updateData);
 
     const result = await contentsService.statusChange(updateData);
     res.status(200).json({ state: 'success', result });
   } catch (error) {
     next(error);
+  }
+});
+
+//상품 교환 및 나눔 완료 시 상태 변경 및 거래 테이블에 추가
+router.put('/status/done', async (req, res) => {
+  try {
+    const params = {
+      offererId: req.body.offererId, // 글쓴이
+      proposerId: req.body.proposerId, // 제안자
+      contentsId: req.body.contentsId, // 상품
+      purpose: req.body.purpose, // 교환 or 나눔
+      status: req.body.status,
+    };
+    const result = await contentsService.statusDone(params);
+    res.status(200).json({ message: 'success', result });
+  } catch (error) {
+    logger.error('content status done error:', error);
+    throw error;
   }
 });
 

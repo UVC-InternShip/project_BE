@@ -3,17 +3,39 @@ import logger from '../../lib/logger.js';
 import { ObjectId } from 'mongodb';
 
 const chatDao = {
-  async createChatRoom(params) {
+  async createShareChatRoom(params) {
     try {
       const db = getDb();
       const result = await db.collection('chatroom').insertOne({
-        member: [params.writerId, params.userId],
-        itemId: params.itemId,
+        member: [params.sharerId, params.requesterId],
+        itemId: params.contentId,
         date: new Date(),
       });
       return result;
     } catch (error) {
-      logger.error('Error in createChatRoom:', error);
+      logger.error('Error in createShareChatRoom:', error);
+      throw error;
+    }
+  },
+
+  async createExchangeChatRoom(params) {
+    try {
+      console.log('들어옴 만들기', params);
+      const db = getDb();
+      const result = await db.collection('chatroom').insertOne({
+        member: {
+          proposalId: params.proposalId,
+          writerId: params.writerId,
+        },
+        itemId: {
+          proposeContentId: params.proposeContentId,
+          writerContentId: params.writerContentId,
+        },
+        data: new Date(),
+      });
+      return result;
+    } catch (error) {
+      logger.error('Error in createExchangeChatRoom:', error);
       throw error;
     }
   },
@@ -35,16 +57,37 @@ const chatDao = {
     }
   },
 
-  async checkExistRoom(params) {
+  async checkExistShareRoom(params) {
     try {
       const db = getDb();
       const result = await db.collection('chatroom').findOne({
-        member: [params.writerId, params.userId],
-        itemId: params.itemId,
+        member: [params.sharerId, params.requesterId],
+        itemId: params.contentId,
       });
       return result;
     } catch (error) {
-      logger.error('Error in checkExistRoom:', error);
+      logger.error('Error in checkExistShareRoom:', error);
+      throw error;
+    }
+  },
+
+  async checkExistExchangeRoom(params) {
+    try {
+      const db = getDb();
+      const result = await db.collection('chatroom').findOne({
+        member: {
+          proposalId: params.proposalId,
+          writerId: params.writerId,
+        },
+        itemId: {
+          proposeContentId: params.proposeContentId,
+          writerContentId: params.writerContentId,
+        },
+      });
+      console.log(result);
+      return result;
+    } catch (error) {
+      logger.error('Error in checkExistExchangeRoom:', error);
       throw error;
     }
   },
