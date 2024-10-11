@@ -9,8 +9,7 @@ const chatService = {
       const checkroom = await chatDao.checkExistShareRoom(params);
 
       if (checkroom) {
-        console.log('checkroom', checkroom._id);
-        const [sharer, requester, content, roomId] = await Promise.all([
+        const [sharer, requester, content] = await Promise.all([
           userDao.getUserInfoById({ userId: checkroom.member[0] }),
           userDao.getUserInfoById({ userId: checkroom.member[1] }),
           contentsDao.getItemById({ itemId: checkroom.itemId }),
