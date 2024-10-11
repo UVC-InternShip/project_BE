@@ -9,8 +9,8 @@ const chatService = {
       const checkroom = await chatDao.checkExistShareRoom(params);
 
       if (checkroom) {
-        console.log(checkroom);
-        const [sharer, requester, content] = await Promise.all([
+        console.log('checkroom', checkroom._id);
+        const [sharer, requester, content, roomId] = await Promise.all([
           userDao.getUserInfoById({ userId: checkroom.member[0] }),
           userDao.getUserInfoById({ userId: checkroom.member[1] }),
           contentsDao.getItemById({ itemId: checkroom.itemId }),
@@ -18,6 +18,7 @@ const chatService = {
         return {
           message: 'already exist',
           result: {
+            chatroomId: checkroom._id,
             user: [sharer, requester],
             contents: content,
           },
@@ -49,6 +50,7 @@ const chatService = {
         return {
           message: 'already exist',
           result: {
+            chatroomId: checkroom._id,
             user: [proposal, writer],
             contents: [proposeContentId, writerContentId],
           },
