@@ -95,7 +95,7 @@ export const initializedSocketIO = (server) => {
         await chatService.saveMessage(params);
 
         // 메시지 전송
-        io.to(data.chatRoomId).emit('receive-message', params.message);
+        io.to(data.chatRoomId).emit('receive-message', params);
 
         logger.info('Message sent', {
           chatRoomId: data.chatRoomId,
