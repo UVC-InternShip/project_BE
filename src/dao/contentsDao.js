@@ -165,11 +165,6 @@ const ContentsDao = {
           images: imagesByContentId[content.dataValues.contentsId] || [], // 해당 상품의 이미지가 있으면 추가
         };
       });
-      console.log(
-        '🚀 ~ contentsWithImages ~ contentsWithImages:',
-        contentsWithImages
-      );
-
       return contentsWithImages;
     } catch (err) {
       throw err;
