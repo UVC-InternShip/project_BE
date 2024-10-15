@@ -82,10 +82,13 @@ const chatService = {
           userDao.getUserInfoById({ userId: memberId })
         );
 
-        const [members, item] = await Promise.all([
+        const [members, itemResult] = await Promise.all([
           Promise.all(memberPromises),
-          contentsDao.getItemById({ itemId: room.itemId }),
+          contentsDao.listContentsGet({ contentsId: room.itemId }),
         ]);
+
+        // itemResult가 배열이므로, 첫 번째 요소를 사용
+        const item = itemResult && itemResult.length > 0 ? itemResult[0] : null;
 
         return {
           id: room._id.toString(),
@@ -100,27 +103,45 @@ const chatService = {
               return null;
             })
             .filter(Boolean),
-          item:
-            item && item.dataValues
-              ? {
-                  id: item.dataValues.contentsId,
-                  title: item.dataValues.title,
-                  type: item.dataValues.contentsType,
-                  purpose: item.dataValues.purpose,
-                  status: item.dataValues.status,
-                }
-              : null,
+          item: item
+            ? {
+                id: item.contentsId,
+                title: item.title,
+                type: item.contentsType,
+                purpose: item.purpose,
+                status: item.status,
+                image:
+                  item.images && item.images.length > 0 ? item.images[0] : null,
+                userId: item.userId,
+              }
+            : null,
           date: room.date,
         };
       })
     );
 
-    return result.filter((room) => room.members.length > 0 && room.item); // 유효한 데이터만 반환
+    return result.filter((room) => room.members.length > 0 && room.item);
   },
 
   async getChatDetail(params) {
     const result = await chatDao.getDetail(params);
-    return result;
+    let contentInfo = await contentsDao.listContentsGet({
+      contentsId: result.chatInfo.itemId,
+    });
+
+    contentInfo = contentInfo.map((item) => {
+      const { images, ...rest } = item;
+      return {
+        ...rest,
+        firstImage: images && images.length > 0 ? images[0] : null,
+      };
+    });
+
+    return {
+      chatInfo: result.chatInfo,
+      contentInfo: contentInfo,
+      message: result.message,
+    };
   },
 
   async saveMessage(params) {
