@@ -33,8 +33,10 @@ export function verifyAndRefreshTokens(accessToken, refreshToken) {
   try {
     //Access Token이 유효한 경우
     const decoded = jwt.verify(accessToken, jwtConfig.secret);
+    console.log('🚀 ~ verifyAndRefreshTokens ~ decoded:', decoded);
     return { accessToken, refreshToken, decoded };
   } catch (error) {
+    console.log('🚀 ~ verifyAndRefreshTokens ~ error:', error);
     if (error.name === 'TokenExpiredError') {
       // Access Token이 만료된 경우, Refresh Token을 사용하여 새로운 Access Token 발급
       try {
