@@ -6,6 +6,7 @@ import changerRouter from './exchangeProposer.js';
 import smsRouter from './sms.js';
 import chatRouter from './chat.js';
 import tokenRouter from './token.js';
+import locationRouter from './location.js';
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use('/offer', changerRouter);
 router.use('/sms', smsRouter);
 router.use('/chat', chatRouter);
 router.use('/token', tokenRouter);
+router.use('/location', locationRouter);
 
 export default router;
