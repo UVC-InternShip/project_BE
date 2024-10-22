@@ -183,18 +183,67 @@ const chatService = {
 
   async getChatDetail(params) {
     const result = await chatDao.getDetail(params);
-    let contentInfo = await contentsDao.listContentsGet({
-      contentsId: result.chatInfo.itemId,
-    });
 
-    contentInfo = contentInfo.map((item) => {
-      const { images, ...rest } = item;
-      return {
-        ...rest,
-        firstImage: images && images.length > 0 ? images[0] : null,
+    const chatInfo = result.chatInfo;
+
+    let contentInfo = [];
+    const itemId = chatInfo.itemId;
+
+    if (typeof itemId === 'object' && itemId !== null) {
+      // 교환의 경우
+      const proposalContentId = itemId.proposeContentId;
+      const writerContentId = itemId.writerContentId;
+
+      const [proposeContent, writerContent] = await Promise.all([
+        proposalContentId
+          ? contentsDao.listContentsGet({ contentsId: proposalContentId })
+          : null,
+        writerContentId
+          ? contentsDao.listContentsGet({ contentsId: writerContentId })
+          : null,
+      ]);
+
+      // 각각의 컨텐츠에 대해 이미지 처리
+      const processedProposeContent = proposeContent
+        ? proposeContent.map((item) => {
+            const { images, ...rest } = item;
+            return {
+              ...rest,
+              firstImage: images && images.length > 0 ? images[0] : null,
+            };
+          })
+        : null;
+
+      const processedWriterContent = writerContent
+        ? writerContent.map((item) => {
+            const { images, ...rest } = item;
+            return {
+              ...rest,
+              firstImage: images && images.length > 0 ? images[0] : null,
+            };
+          })
+        : null;
+
+      contentInfo = {
+        proposeContent: processedProposeContent,
+        writerContent: processedWriterContent,
       };
-    });
+    } else {
+      // 나눔의 경우
+      const content = await contentsDao.listContentsGet({
+        contentsId: itemId,
+      });
 
+      contentInfo = content
+        ? content.map((item) => {
+            const { images, ...rest } = item;
+            return {
+              ...rest,
+              firstImage: images && images.length > 0 ? images[0] : null,
+            };
+          })
+        : [];
+    }
     return {
       chatInfo: result.chatInfo,
       contentInfo: contentInfo,

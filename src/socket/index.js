@@ -56,7 +56,7 @@ export const initializedSocketIO = (server) => {
 
           // 채팅 데이터 로드
           const chatHistory = await chatService.getChatDetail(data.chatRoomId);
-          console.log(chatHistory);
+          logger.info('import chatHistory success');
           // socket.to(data.chatRoomId).emit('chat-history', chatHistory);
           socket.emit('chat-history', chatHistory);
         }

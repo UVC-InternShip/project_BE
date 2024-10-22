@@ -127,8 +127,13 @@ const chatDao = {
       const db = getDb();
       const result = await db.collection('chatroom').findOne({
         _id: new ObjectId(params.roomId),
-        member: params.userId,
+        $or: [
+          { member: params.userId },
+          { 'member.writerId': params.userId },
+          { 'member.proposalId': params.userId },
+        ],
       });
+
       if (result) {
         return true;
       } else {
