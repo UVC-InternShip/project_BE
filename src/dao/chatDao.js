@@ -43,10 +43,17 @@ const chatDao = {
   async getChatRooms(params) {
     try {
       const db = getDb();
+      const memberId = parseInt(params.memberId);
+
       const result = await db
         .collection('chatroom')
         .find({
-          member: parseInt(params.memberId),
+          $or: [
+            { member: memberId }, // member가 단일 값인 경우
+            { member: { $in: [memberId] } }, // member가 배열인 경우
+            { 'member.writerId': memberId }, // member가 객체이고 writerId를 확인
+            { 'member.proposalId': memberId }, // member가 객체이고 proposalId를 확인
+          ],
         })
         .sort({ date: -1 })
         .toArray();

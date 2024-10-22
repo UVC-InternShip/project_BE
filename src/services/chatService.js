@@ -78,17 +78,83 @@ const chatService = {
 
     const result = await Promise.all(
       chatRooms.map(async (room) => {
-        const memberPromises = room.member.map((memberId) =>
+        // member가 배열인지 객체인지 확인하고 적절히 처리
+        const memberIds = Array.isArray(room.member)
+          ? room.member
+          : room.member.proposalId && room.member.writerId
+            ? [room.member.proposalId, room.member.writerId]
+            : [];
+
+        const memberPromises = memberIds.map((memberId) =>
           userDao.getUserInfoById({ userId: memberId })
         );
 
-        const [members, itemResult] = await Promise.all([
-          Promise.all(memberPromises),
-          contentsDao.listContentsGet({ contentsId: room.itemId }),
-        ]);
+        let items = [];
+        if (typeof room.itemId === 'object') {
+          // itemId가 객체인 경우 두 개의 컨텐츠를 각각 조회
+          const [proposeContent, writerContent] = await Promise.all([
+            contentsDao.listContentsGet({
+              contentsId: room.itemId.proposeContentId,
+            }),
+            contentsDao.listContentsGet({
+              contentsId: room.itemId.writerContentId,
+            }),
+          ]);
 
-        // itemResult가 배열이므로, 첫 번째 요소를 사용
-        const item = itemResult && itemResult.length > 0 ? itemResult[0] : null;
+          // 각 컨텐츠의 첫 번째 항목을 items 배열에 추가
+          if (proposeContent && proposeContent.length > 0) {
+            items.push({
+              id: proposeContent[0].contentsId,
+              title: proposeContent[0].title,
+              type: proposeContent[0].contentsType,
+              purpose: proposeContent[0].purpose,
+              status: proposeContent[0].status,
+              image:
+                proposeContent[0].images && proposeContent[0].images.length > 0
+                  ? proposeContent[0].images[0]
+                  : null,
+              userId: proposeContent[0].userId,
+              itemType: 'propose', // 제안 컨텐츠 구분
+            });
+          }
+
+          if (writerContent && writerContent.length > 0) {
+            items.push({
+              id: writerContent[0].contentsId,
+              title: writerContent[0].title,
+              type: writerContent[0].contentsType,
+              purpose: writerContent[0].purpose,
+              status: writerContent[0].status,
+              image:
+                writerContent[0].images && writerContent[0].images.length > 0
+                  ? writerContent[0].images[0]
+                  : null,
+              userId: writerContent[0].userId,
+              itemType: 'writer', // 작성자 컨텐츠 구분
+            });
+          }
+        } else {
+          // 기존 단일 아이템 처리
+          const itemResult = await contentsDao.listContentsGet({
+            contentsId: room.itemId,
+          });
+          if (itemResult && itemResult.length > 0) {
+            items.push({
+              id: itemResult[0].contentsId,
+              title: itemResult[0].title,
+              type: itemResult[0].contentsType,
+              purpose: itemResult[0].purpose,
+              status: itemResult[0].status,
+              image:
+                itemResult[0].images && itemResult[0].images.length > 0
+                  ? itemResult[0].images[0]
+                  : null,
+              userId: itemResult[0].userId,
+            });
+          }
+        }
+
+        const members = await Promise.all(memberPromises);
 
         return {
           id: room._id.toString(),
@@ -103,24 +169,16 @@ const chatService = {
               return null;
             })
             .filter(Boolean),
-          item: item
-            ? {
-                id: item.contentsId,
-                title: item.title,
-                type: item.contentsType,
-                purpose: item.purpose,
-                status: item.status,
-                image:
-                  item.images && item.images.length > 0 ? item.images[0] : null,
-                userId: item.userId,
-              }
-            : null,
-          date: room.date,
+          items: items, // item 대신 items 배열 반환
+          date: room.date || room.data,
         };
       })
     );
 
-    return result.filter((room) => room.members.length > 0 && room.item);
+    // items 배열이 비어있지 않은 경우만 필터링
+    return result.filter(
+      (room) => room.members.length > 0 && room.items.length > 0
+    );
   },
 
   async getChatDetail(params) {
