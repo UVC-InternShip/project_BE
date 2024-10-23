@@ -164,6 +164,7 @@ const chatService = {
                 return {
                   id: member.dataValues.userId,
                   name: member.dataValues.name,
+                  profile: member.dataValues.profile,
                 };
               }
               return null;

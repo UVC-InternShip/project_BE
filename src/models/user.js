@@ -50,6 +50,15 @@ class User extends Sequelize.Model {
           allowNull: false,
           defaultValue: 'user',
         },
+        profile: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+          validate: {
+            min: 0,
+            max: 7,
+          },
+        },
       },
       {
         sequelize,

@@ -36,8 +36,8 @@ router.post(
         };
       });
 
-      console.log('🚀 ~ router.post ~ images:', images);
-      console.log('🚀 ~ router.post ~ params:', params1, params2);
+      // console.log('🚀 ~ router.post ~ images:', images);
+      // console.log('🚀 ~ router.post ~ params:', params1, params2);
 
       const result = await exchangeService.register(params1, params2, images);
 
