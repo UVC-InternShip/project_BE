@@ -31,8 +31,8 @@ router.post(
         };
       });
 
-      console.log('🚀 ~ router.post ~ images:', images);
-      console.log('🚀 ~ router.post ~ params:', params);
+      // console.log('🚀 ~ router.post ~ images:', images);
+      // console.log('🚀 ~ router.post ~ params:', params);
 
       const result = await contentsService.register(params, images);
 

@@ -59,7 +59,13 @@ const userDao = {
     try {
       const result = await User.findOne({
         where: { userId: params.userId },
-        attributes: ['userId', 'phoneNumber', 'name', 'reputationScore'],
+        attributes: [
+          'userId',
+          'phoneNumber',
+          'name',
+          'reputationScore',
+          'profile',
+        ],
       });
       return result;
     } catch (error) {
