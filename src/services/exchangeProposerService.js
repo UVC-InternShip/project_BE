@@ -3,17 +3,19 @@ import exchangesDao from '../dao/exchangeProposerDao.js';
 const exchangesService = {
   //상품 등록
   async register(params1, params2, images) {
-    console.log('🚀 ~ register ~ params:', params1);
+    //console.log('🚀 ~ register ~ params:', params1);
     let inserted1 = null;
     let inserted2 = null;
     try {
       inserted1 = await exchangesDao.insert1(params1);
-      console.log('🚀 ~ register ~ inserted1:', inserted1);
+      console.log('🚀 ~ register ~ inserted1:', inserted1.dataValues);
 
       const contentsId = inserted1.contentsId;
+      const contentsUser = inserted1.userId;
       // inserted2에 추가할 데이터를 구성
       const inserted2Data = {
         ...params2,
+        offererUserId: `${contentsUser}`,
         contentsId: `${contentsId}`, // inserted1에서 가져온 contentsId 추가
         // 다른 필요한 필드들도 추가
       };

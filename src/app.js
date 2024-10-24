@@ -7,6 +7,7 @@ import indexRouter from './routes/index.js';
 import { createServer } from 'http';
 import { initializedSocketIO } from './socket/index.js';
 import redis from './config/redis.js';
+import fcmConnection from './fcm.js';
 
 const app = express();
 dotenv.config();
@@ -54,5 +55,6 @@ redis.on('error', (error) => {
 });
 
 startServer();
+fcmConnection();
 
 export default app;

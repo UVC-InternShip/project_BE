@@ -7,6 +7,7 @@ import smsRouter from './sms.js';
 import chatRouter from './chat.js';
 import tokenRouter from './token.js';
 import locationRouter from './location.js';
+import fcmRouter from './push.js';
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use('/sms', smsRouter);
 router.use('/chat', chatRouter);
 router.use('/token', tokenRouter);
 router.use('/location', locationRouter);
+router.use('/fcm', fcmRouter);
 
 export default router;

@@ -1,8 +1,9 @@
 // sequelize와 User 모델 불러오기
-import { Op } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import Contents from '../models/contents.js';
 import Category from '../models/category.js';
 import ContentsImg from '../models/contentsImg.js';
+import exchangeProposer from '../models/exchangeProposal.js';
 
 const ContentsDao = {
   // 상품 등록
@@ -128,23 +129,40 @@ const ContentsDao = {
     }
   },
 
-  // 상품 리스트 가져오기 무한스크롤
+  // 상품 리스트 가져오기 무한스크롤 - 제안 리스트 갯수 포함
   async listGetScroll(params) {
-    // eslint-disable-next-line no-useless-catch
+    console.log('🚀 ~ listGetScroll ~ params:', params);
     try {
       // 데이터 조회 (예시로 Sequelize 사용)
-      const { rows, count } = await Contents.findAndCountAll({
+      const contentsResult = await Contents.findAndCountAll({
         offset: params.offset,
         limit: params.limit,
         order: [['contentsId', 'ASC']], // contentsId 기준 오름차순 정렬
       });
 
-      // 2. 모든 상품의 이미지 조회
-      const contentsIds = rows.map((content) => content.dataValues.contentsId);
+      const { rows: contentsRows, count: contentsCount } = contentsResult;
+
+      // 모든 상품의 ID 목록을 가져옵니다.
+      const contentsIds = contentsRows.map(
+        (content) => content.dataValues.contentsId
+      );
+      console.log('🚀 ~ listGetScroll ~ contentsIds:', contentsIds);
+
+      // 1. 이미지 조회
       const images = await ContentsImg.findAll({
         where: { contentsId: contentsIds }, // 해당하는 상품들의 이미지 조회
         attributes: ['contentsId', 'imageUrl', 'order'], // 필요한 필드만 선택
       });
+
+      // 2. 제안된 갯수 조회
+      const proposalResult = await exchangeProposer.findAndCountAll({
+        where: { proposerContentId: contentsIds },
+      });
+      const { rows: proposalRows, count: proposalCount } = proposalResult;
+      console.log('🚀 ~ listGetScroll ~ proposalCounts:', proposalRows);
+
+      // 총 갯수를 출력합니다.
+      console.log('🚀 ~ listGetScroll ~ proposalCounts count:', proposalCount);
 
       // 3. 이미지 데이터를 contentsId를 기준으로 매핑
       const imagesByContentId = images.reduce((acc, image) => {
@@ -158,15 +176,20 @@ const ContentsDao = {
         return acc;
       }, {});
 
-      // 4. 상품 리스트에 이미지 데이터를 추가
-      const contentsWithImages = rows.map((content) => {
+      // 4. 상품 리스트에 이미지 데이터와 제안된 갯수를 추가
+      const contentsWithImagesAndProposals = contentsRows.map((content) => {
         return {
           ...content.dataValues, // 상품 데이터
           images: imagesByContentId[content.dataValues.contentsId] || [], // 해당 상품의 이미지가 있으면 추가
+          proposalCount: proposalRows.filter(
+            (row) => row.proposerContentId === content.dataValues.contentsId
+          ).length,
         };
       });
-      return contentsWithImages;
+
+      return contentsWithImagesAndProposals;
     } catch (err) {
+      console.error('🚀 ~ listGetScroll Error:', err.message);
       throw err;
     }
   },

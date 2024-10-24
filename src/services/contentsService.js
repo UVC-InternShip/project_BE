@@ -122,6 +122,7 @@ const contentsService = {
 
   //상품 리스트 가져오기
   async listGetScroll(params) {
+    console.log('🚀 ~ listGetScroll ~ params:', params);
     let result = null;
 
     try {

@@ -6,11 +6,11 @@ import exchangeProposer from '../models/exchangeProposal.js';
 const ExchangesDao = {
   // 상품 등록1
   async insert1(params1) {
-    console.log('🚀 ~ insert1 ~ params1:', params1);
+    //console.log('🚀 ~ insert1 ~ params1:', params1);
     // eslint-disable-next-line no-useless-catch
     try {
       const inserted = await Contents.create(params1);
-      console.log('🚀 ~ ExchangesDao.create ~ inserted:', inserted);
+      //console.log('🚀 ~ ExchangesDao.create ~ inserted:', inserted);
       return inserted;
     } catch (err) {
       throw err;
